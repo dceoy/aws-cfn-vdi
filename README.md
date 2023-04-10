@@ -23,17 +23,17 @@ Installation
     $ rain deploy \
         --params ProjectName=slhpc-dev \
         aws-cfn-vpc-for-slc/vpc-private-subnets-with-endpoints.cfn.yml \
-        slhpc-dev-vpc-private
+        slhpc-dev-vpc-private-subnets-with-endpoints
     $ rain deploy \
         --params ProjectName=slhpc-dev,VpcStackName=slhpc-dev-vpc-private \
         aws-cfn-vpc-for-slc/vpc-public-subnets-with-nat-gateway-per-az.cfn.yml \
-        slhpc-dev-vpc-public
+        slhpc-dev-vpc-public-subnets-with-nat-gateway-per-az
     ```
 
-4.  Deploy WorkSpaces stacks.
+4.  Deploy AppStream 2.0 stacks.
 
     ```sh
     $ rain deploy \
-        workspace.cfn.yml \
-        workspace
+        --params ProjectName=slhpc-dev,VpcStackName=slhpc-dev-vpc-private \
+        appstream.cfn.yml slhpc-dev-appstream
     ```

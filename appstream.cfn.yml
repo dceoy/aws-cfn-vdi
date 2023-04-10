@@ -1,0 +1,66 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: VPC public subnets in 3 AZs and a NAT gateway in 1 AZ
+Parameters:
+  VpcStackName:
+    Description: Set the VPC stack name.
+    Type: String
+    Default: vpc-private-subnets-with-s3-endpoint
+  ProjectName:
+    Description: Set the project name.
+    Type: String
+    Default: slhpc
+  Az0:
+    Description: Set the first AZ suffix.
+    Type: String
+    Default: a
+  Az1:
+    Description: Set the second AZ suffix.
+    Type: String
+    Default: c
+  Az2:
+    Description: Set the third AZ suffix.
+    Type: String
+    Default: d
+Resources:
+  AppStreamServiceAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-AppStreamServiceAccess
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appstream.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      MaxSessionDuration: 3600
+      Path: /service-role/
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonAppStreamServiceAccess
+  AppStreamImageBuilder:
+    Type: AWS::AppStream::ImageBuilder
+    Properties:
+      Name: AS2_Lab_ImageBuilder
+      AppstreamAgentVersion: LATEST
+      DisplayName: Image Builder
+      Description: Image Builder for AppStream 2.0
+      EnableDefaultInternetAccess: false
+      ImageName: AppStream-WinServer2019-10-05-2022
+      InstanceType: stream.standard.medium
+      VpcConfig:
+        SubnetIds:
+          - Fn::ImportValue: !Sub ${AWS::Region}-${VpcPrivateStackName}-PrivateSubnet0
+          - Fn::ImportValue: !Sub ${AWS::Region}-${VpcPrivateStackName}-PrivateSubnet1
+          - Fn::ImportValue: !Sub ${AWS::Region}-${VpcPrivateStackName}-PrivateSubnet2
+Outputs:
+  AppStreamServiceAccessRole:
+    Value: !Ref AppStreamServiceAccessRole
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamServiceAccessRole
+  AppStreamImageBuilder:
+    Value: !Ref AppStreamImageBuilder
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamImageBuilder
