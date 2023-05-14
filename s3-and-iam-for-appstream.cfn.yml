@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: S3 bucket and IAM role for AppStream 2.0
+Description: S3 bucket and IAM roles for AppStream 2.0
 Parameters:
   ProjectName:
     Description: Set the project name.
@@ -36,6 +36,8 @@ Resources:
   AppStreamS3BucketRole:
     Type: AWS::IAM::Role
     Properties:
+      RoleName: !Sub ${ProjectName}-AppStreamS3BucketRole
+      Path: /
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -68,6 +70,22 @@ Resources:
                       - - 'arn:aws:s3:::'
                         - !Ref AppStreamS3Bucket
                         - /*
+  AppStreamServiceAccessRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-AppStreamServiceAccessRole
+      Path: /service-role/
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appstream.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonAppStreamServiceAccess
 Outputs:
   AppStreamS3Bucket:
     Value: !Ref AppStreamS3Bucket
@@ -77,3 +95,7 @@ Outputs:
     Value: !GetAtt AppStreamS3BucketRole.Arn
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamS3BucketRoleArn
+  AppStreamServiceAccessRoleArn:
+    Value: !GetAtt AppStreamServiceAccessRole.Arn
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamServiceAccessRoleArn

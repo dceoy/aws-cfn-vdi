@@ -35,8 +35,8 @@ Installation
     ```sh
     $ rain deploy \
         --params ProjectName=vdi-dev \
-        s3-bucket-for-appstream.cfn.yml vdi-dev-s3-bucket-for-appstream
+        s3-and-iam-for-appstream.cfn.yml vdi-dev-s3-and-iam-for-appstream
     $ rain deploy \
-        --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,S3StackName=vdi-dev-s3-bucket-for-appstream \
+        --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,S3StackName=vdi-dev-s3-and-iam-for-appstream \
         appstream-image-builders.cfn.yml vdi-dev-appstream-image-builders
     ```

@@ -9,7 +9,7 @@ Parameters:
   S3StackName:
     Description: Set the S3 stack name.
     Type: String
-    Default: s3-bucket-and-iam-role-for-appstream
+    Default: s3-and-iam-for-appstream
   ProjectName:
     Description: Set the project name.
     Type: String
@@ -29,7 +29,7 @@ Resources:
   AppStreamWindowsImageBuilder:
     Type: AWS::AppStream::ImageBuilder
     Properties:
-      Name: !Sub ${ProjectName}-appstream-windows-image-builder
+      Name: !Sub ${ProjectName}-as2-windows-image-builder
       DisplayName: Windows Server 2019 Image Builder
       Description: Windows Server 2019 Image Builder for AppStream 2.0
       AppstreamAgentVersion: LATEST
@@ -46,7 +46,7 @@ Resources:
   AppStreamLinuxImageBuilder:
     Type: AWS::AppStream::ImageBuilder
     Properties:
-      Name: !Sub ${ProjectName}-appstream-linux-image-builder
+      Name: !Sub ${ProjectName}-as2-linux-image-builder
       DisplayName: Amazon Linux 2 Image Builder
       Description: Amazon Linux 2 Image Builder for AppStream 2.0
       EnableDefaultInternetAccess: !Ref EnableDefaultInternetAccess
