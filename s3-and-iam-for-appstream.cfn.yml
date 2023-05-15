@@ -33,6 +33,9 @@ Resources:
                 StorageClass: INTELLIGENT_TIERING
             NoncurrentVersionExpiration:
               NoncurrentDays: 7
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-appstream-${AWS::AccountId}
   AppStreamS3BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:
