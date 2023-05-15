@@ -33,6 +33,25 @@ Resources:
                 StorageClass: INTELLIGENT_TIERING
             NoncurrentVersionExpiration:
               NoncurrentDays: 7
+  AppStreamS3BucketPolicy:
+    Type: AWS::S3::BucketPolicy
+    Properties:
+      Bucket: !Ref AppStreamS3Bucket
+      PolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Sid: AllowRetrievalPermissionsToS3AppsForAppStream
+            Effect: Allow
+            Principal:
+              Service: appstream.amazonaws.com
+            Action:
+              - s3:GetObject
+            Resource:
+              - Fn::Join:
+                  - ''
+                  - - 'arn:aws:s3:::'
+                    - !Ref AppStreamS3Bucket
+                    - /*
   AppStreamS3BucketRole:
     Type: AWS::IAM::Role
     Properties:
