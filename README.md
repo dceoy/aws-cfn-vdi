@@ -30,13 +30,26 @@ Installation
         vdi-dev-vpc-public-subnets-with-nat-gateway-in-1az
     ```
 
-4.  Deploy stacks for AppStream 2.0.
+4.  Deploy S3 and IAM stacks for AppStream 2.0.
 
     ```sh
     $ rain deploy \
         --params ProjectName=vdi-dev \
         s3-and-iam-for-appstream.cfn.yml vdi-dev-s3-and-iam-for-appstream
+    ```
+
+5.  Deploy stacks of AppStream 2.0 image builders.
+
+    ```sh
     $ rain deploy \
         --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,S3StackName=vdi-dev-s3-and-iam-for-appstream \
         appstream-image-builders.cfn.yml vdi-dev-appstream-image-builders
+    ```
+
+6.  Deploy stacks of AppStream 2.0 elastic fleets.
+
+    ```sh
+    $ rain deploy \
+        --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,S3StackName=vdi-dev-s3-and-iam-for-appstream \
+        appstream-linux-fleet-stack.cfn.yml vdi-dev-appstream-linux-fleet-stack
     ```

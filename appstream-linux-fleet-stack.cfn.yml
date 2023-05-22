@@ -1,0 +1,123 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: AppStream 2.0 elastic fleet with an IAM role
+Parameters:
+  VpcStackName:
+    Description: Set the VPC stack name.
+    Type: String
+    Default: vpc-private-subnets-with-gateway-endpoints
+  S3StackName:
+    Description: Set the S3 stack name.
+    Type: String
+    Default: s3-and-iam-for-appstream
+  ProjectName:
+    Description: Set the project name.
+    Type: String
+    Default: vdi
+  InstanceType:
+    Description: Set the AppStream 2.0 instance type.
+    Type: String
+    Default: stream.standard.small
+    AllowedValues:
+      - stream.standard.small
+      - stream.standard.medium
+      - stream.standard.large
+      - stream.standard.xlarge
+      - stream.standard.2xlarge
+  Platform:
+    Description: Set the AppStream 2.0 platform.
+    Type: String
+    Default: AMAZON_LINUX2
+    AllowedValues:
+      - AMAZON_LINUX2
+      - INDOWS_SERVER_2019
+  EnableDefaultInternetAccess:
+    Description: Enable the AppStream 2.0 default internet access.
+    Type: String
+    Default: false
+    AllowedValues:
+      - true
+      - false
+Resources:
+  AppStreamFleet:
+    Type: AWS::AppStream::Fleet
+    Properties:
+      Name: !Sub ${ProjectName}-appstream-elastic-fleet
+      DisplayName: !Sub ${ProjectName}-appstream-elastic-fleet
+      Description: AppStream 2.0 elastic fleet
+      FleetType: ELASTIC
+      InstanceType: !Ref InstanceType
+      Platform: !Ref Platform
+      MaxUserDurationInSeconds: 57600
+      DisconnectTimeoutInSeconds: 900
+      IdleDisconnectTimeoutInSeconds: 900
+      MaxConcurrentSessions: 5
+      StreamView: DESKTOP
+      IamRoleArn:
+        Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-AppStreamS3BucketRoleArn
+      EnableDefaultInternetAccess: !Ref EnableDefaultInternetAccess
+      VpcConfig:
+        SubnetIds:
+          - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
+          - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet1
+          - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet2
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+      # SessionScriptS3Location:
+      #   S3Bucket:
+      #     Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-AppStreamS3Bucket
+      #   S3Key: String
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-appstream-elastic-fleet
+  AppStreamStack:
+    Type: AWS::AppStream::Stack
+    Properties:
+      Name: !Sub ${ProjectName}-appstream-elastic-fleet-stack
+      DisplayName: !Sub ${ProjectName}-appstream-elastic-fleet-stack
+      Description: AppStream 2.0 elastic fleet stack
+      StreamingExperienceSettings:
+        PreferredProtocol: TCP
+      StorageConnectors:
+        - ConnectorType: HOMEFOLDERS
+      UserSettings:
+        - Action: CLIPBOARD_COPY_FROM_LOCAL_DEVICE
+          Permission: ENABLED
+        - Action: CLIPBOARD_COPY_TO_LOCAL_DEVICE
+          Permission: ENABLED
+        - Action: FILE_DOWNLOAD
+          Permission: ENABLED
+        - Action: FILE_UPLOAD
+          Permission: ENABLED
+        - Action: PRINTING_TO_LOCAL_DEVICE
+          Permission: ENABLED
+      # AccessEndpoints:
+      #   - EndpointType: STREAMING
+      #     VpceId:
+      #       Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
+      # ApplicationSettings:
+      #   Enabled: true
+      #   SettingsGroup: String
+      # AttributesToDelete:
+      #   - String
+      # EmbedHostDomains:
+      #   - String
+      # FeedbackURL: String
+      # RedirectURL: String
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-appstream-elastic-fleet-stack
+  AppStreamStackFleetAssociation:
+    Type: AWS::AppStream::StackFleetAssociation
+    Properties:
+      FleetName: !Ref AppStreamFleet
+      StackName: !Ref AppStreamStack
+Outputs:
+  AppStreamFleet:
+    Value: !Ref AppStreamFleet
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamFleet
+  AppStreamStack:
+    Value: !Ref AppStreamStack
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamStack

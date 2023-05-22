@@ -18,6 +18,12 @@ Parameters:
     Description: Set the AppStream 2.0 instance type.
     Type: String
     Default: stream.standard.small
+    AllowedValues:
+      - stream.standard.small
+      - stream.standard.medium
+      - stream.standard.large
+      - stream.standard.xlarge
+      - stream.standard.2xlarge
   EnableDefaultInternetAccess:
     Description: Enable the AppStream 2.0 default internet access.
     Type: String
@@ -65,7 +71,7 @@ Resources:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
       Tags:
         - Key: Name
-          Value: !Sub ${ProjectName}-appstream-windows-image-builder
+          Value: !Sub ${ProjectName}-appstream-linux-image-builder
 Outputs:
   AppStreamWindowsImageBuilder:
     Value: !Ref AppStreamWindowsImageBuilder
