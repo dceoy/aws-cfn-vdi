@@ -14,6 +14,10 @@ Parameters:
     Description: Set the project name.
     Type: String
     Default: vdi
+  SessionScriptS3Key:
+    Description: Set the S3 key of a session script ZIP file.
+    Type: String
+    Default: session_scripts.zip
   InstanceType:
     Description: Set the AppStream 2.0 instance type.
     Type: String
@@ -30,7 +34,7 @@ Parameters:
     Default: AMAZON_LINUX2
     AllowedValues:
       - AMAZON_LINUX2
-      - INDOWS_SERVER_2019
+      - WINDOWS_SERVER_2019
   EnableDefaultInternetAccess:
     Description: Enable the AppStream 2.0 default internet access.
     Type: String
@@ -63,10 +67,10 @@ Resources:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet2
         SecurityGroupIds:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
-      # SessionScriptS3Location:
-      #   S3Bucket:
-      #     Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-AppStreamS3Bucket
-      #   S3Key: String
+      SessionScriptS3Location:
+        S3Bucket:
+          Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-AppStreamS3Bucket
+        S3Key: !Ref SessionScriptS3Key
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-appstream-elastic-fleet

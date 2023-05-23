@@ -1,0 +1,13 @@
+{
+  "SessionStart": {
+    "executables": [
+      {
+        "context": "system",
+        "filename": "/usr/bin/bash",
+        "arguments": "/opt/appstream/SessionScripts/session_start.sh",
+        "s3LogEnabled": true
+      }
+    ],
+    "waitingTime": 30
+  }
+}

@@ -1,0 +1,57 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: AppStream 2.0 image builder
+Parameters:
+  VpcStackName:
+    Description: Set the VPC stack name.
+    Type: String
+    Default: vpc-private-subnets-with-gateway-endpoints
+  S3StackName:
+    Description: Set the S3 stack name.
+    Type: String
+    Default: s3-and-iam-for-appstream
+  ProjectName:
+    Description: Set the project name.
+    Type: String
+    Default: vdi
+  ImageName:
+    Description: Set the AppStream 2.0 image name.
+    Type: String
+    Default: AppStream-AmazonLinux2-03-15-2023
+  InstanceType:
+    Description: Set the AppStream 2.0 instance type.
+    Type: String
+    Default: stream.standard.small
+  EnableDefaultInternetAccess:
+    Description: Enable the AppStream 2.0 default internet access.
+    Type: String
+    Default: false
+    AllowedValues:
+      - true
+      - false
+Resources:
+  AppStreamImageBuilder:
+    Type: AWS::AppStream::ImageBuilder
+    Properties:
+      Name: !Sub ${ProjectName}-appstream-image-builder
+      DisplayName: !Sub ${ProjectName}-appstream-image-builder
+      Description: !Sub AppStream 2.0 Image Builder (${ImageName})
+      AppstreamAgentVersion: LATEST
+      EnableDefaultInternetAccess: !Ref EnableDefaultInternetAccess
+      ImageName: !Ref ImageName
+      InstanceType: !Ref InstanceType
+      IamRoleArn:
+        Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-AppStreamS3BucketRoleArn
+      VpcConfig:
+        SubnetIds:
+          - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
+        SecurityGroupIds:
+          - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-appstream-image-builder
+Outputs:
+  AppStreamImageBuilder:
+    Value: !Ref AppStreamImageBuilder
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamImageBuilder

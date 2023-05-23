@@ -15,7 +15,7 @@ Installation
     $ cd aws-cfn-vdi
     ```
 
-2.  Install [Rain](https://github.com/aws-cloudformation/rain) and set `~/.aws/config` and `~/.aws/credentials`.
+2.  Install [Rain](https://github.com/aws-cloudformation/rain) and [AWS CLI](https://aws.amazon.com/cli/), and set `~/.aws/config` and `~/.aws/credentials`.
 
 3.  Deploy stacks for VPC.
 
@@ -38,18 +38,22 @@ Installation
         s3-and-iam-for-appstream.cfn.yml vdi-dev-s3-and-iam-for-appstream
     ```
 
-5.  Deploy stacks of AppStream 2.0 image builders.
+5.  Deploy stacks of AppStream 2.0.
 
-    ```sh
-    $ rain deploy \
-        --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,S3StackName=vdi-dev-s3-and-iam-for-appstream \
-        appstream-image-builders.cfn.yml vdi-dev-appstream-image-builders
-    ```
+    - Linux image builder
 
-6.  Deploy stacks of AppStream 2.0 elastic fleets.
+      ```sh
+      $ rain deploy \
+          --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,S3StackName=vdi-dev-s3-and-iam-for-appstream \
+          appstream-image-builder.cfn.yml vdi-dev-appstream-image-builder
+      ```
 
-    ```sh
-    $ rain deploy \
-        --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,S3StackName=vdi-dev-s3-and-iam-for-appstream \
-        appstream-linux-fleet-stack.cfn.yml vdi-dev-appstream-linux-fleet-stack
-    ```
+    - Linux elastic fleet and stack
+
+      ```sh
+      $ zip -j linux_session_scripts.zip scripts/linux_session_scripts/*
+      $ aws s3 cp linux_session_scripts.zip s3://vdi-dev-appstream-XXXXXXXXXXXX/session_scripts.zip
+      $ rain deploy \
+          --params ProjectName=vdi-dev,SessionScriptS3Key=session_scripts.zip,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,S3StackName=vdi-dev-s3-and-iam-for-appstream \
+          appstream-elatic-fleet-stack.cfn.yml vdi-dev-appstream-elatic-fleet-stack
+      ```
