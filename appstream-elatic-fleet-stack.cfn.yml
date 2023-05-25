@@ -6,7 +6,7 @@ Parameters:
     Description: Set the VPC stack name.
     Type: String
     Default: vpc-private-subnets-with-gateway-endpoints
-  S3StackName:
+  IamStackName:
     Description: Set the S3 stack name.
     Type: String
     Default: s3-and-iam-for-appstream
@@ -14,10 +14,6 @@ Parameters:
     Description: Set the project name.
     Type: String
     Default: vdi
-  SessionScriptS3Key:
-    Description: Set the S3 key of a session script ZIP file.
-    Type: String
-    Default: session_scripts.zip
   InstanceType:
     Description: Set the AppStream 2.0 instance type.
     Type: String
@@ -58,7 +54,7 @@ Resources:
       MaxConcurrentSessions: 5
       StreamView: DESKTOP
       IamRoleArn:
-        Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-AppStreamS3BucketRoleArn
+        Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-AppStreamS3BucketRoleArn
       EnableDefaultInternetAccess: !Ref EnableDefaultInternetAccess
       VpcConfig:
         SubnetIds:
@@ -67,10 +63,9 @@ Resources:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet2
         SecurityGroupIds:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
-      SessionScriptS3Location:
-        S3Bucket:
-          Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-AppStreamS3Bucket
-        S3Key: !Ref SessionScriptS3Key
+      # SessionScriptS3Location:
+      #   S3Bucket: String
+      #   S3Key: String
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-appstream-elastic-fleet

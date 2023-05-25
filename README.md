@@ -35,7 +35,10 @@ Installation
     ```sh
     $ rain deploy \
         --params ProjectName=vdi-dev \
-        s3-and-iam-for-appstream.cfn.yml vdi-dev-s3-and-iam-for-appstream
+        s3-bucket-for-appstream.cfn.yml vdi-dev-s3-bucket-for-appstream
+    $ rain deploy \
+        --params ProjectName=vdi-dev \
+        iam-role-for-appstream.cfn.yml vdi-dev-iam-role-for-appstream
     ```
 
 5.  Deploy stacks of AppStream 2.0.
@@ -44,16 +47,14 @@ Installation
 
       ```sh
       $ rain deploy \
-          --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,S3StackName=vdi-dev-s3-and-iam-for-appstream \
-          appstream-image-builder.cfn.yml vdi-dev-appstream-image-builder
+          --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-role-for-appstream \
+          appstream-image-builder.cfn.yml vdi-dev-appstream-linux-image-builder
       ```
 
     - Linux elastic fleet and stack
 
       ```sh
-      $ zip -j linux_session_scripts.zip scripts/linux_session_scripts/*
-      $ aws s3 cp linux_session_scripts.zip s3://vdi-dev-appstream-XXXXXXXXXXXX/session_scripts.zip
       $ rain deploy \
-          --params ProjectName=vdi-dev,SessionScriptS3Key=session_scripts.zip,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,S3StackName=vdi-dev-s3-and-iam-for-appstream \
+          --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-role-for-appstream \
           appstream-elatic-fleet-stack.cfn.yml vdi-dev-appstream-elatic-fleet-stack
       ```

@@ -1,0 +1,55 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: IAM role for AppStream 2.0
+Parameters:
+  ProjectName:
+    Description: Set the project name.
+    Type: String
+    Default: vdi
+Resources:
+  AppStreamS3BucketRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-AppStreamS3BucketRole
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - appstream.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      Policies:
+        - PolicyName: !Sub ${ProjectName}-AppStreamS3BucketRole-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - s3:Describe*
+                  - s3:Get*
+                  - s3:List*
+                  - s3-object-lambda:Get*
+                  - s3-object-lambda:List*
+                Resource:
+                  - !Sub arn:aws:s3:::${ProjectName}-*
+              - Effect: Allow
+                Action:
+                  - s3:Describe*
+                  - s3:Get*
+                  - s3:List*
+                  - s3:*Object*
+                  - s3:*MultipartUpload*
+                  - s3-object-lambda:Get*
+                  - s3-object-lambda:List*
+                  - s3-object-lambda:*Object*
+                  - s3-object-lambda:*MultipartUpload*
+                Resource:
+                  - !Sub arn:aws:s3:::${ProjectName}-*/*
+Outputs:
+  AppStreamS3BucketRoleArn:
+    Value: !GetAtt AppStreamS3BucketRole.Arn
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamS3BucketRoleArn

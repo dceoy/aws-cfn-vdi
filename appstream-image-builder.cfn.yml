@@ -6,10 +6,10 @@ Parameters:
     Description: Set the VPC stack name.
     Type: String
     Default: vpc-private-subnets-with-gateway-endpoints
-  S3StackName:
-    Description: Set the S3 stack name.
+  IamStackName:
+    Description: Set the IAM stack name.
     Type: String
-    Default: s3-and-iam-for-appstream
+    Default: iam-role-for-appstream
   ProjectName:
     Description: Set the project name.
     Type: String
@@ -33,23 +33,38 @@ Resources:
   AppStreamImageBuilder:
     Type: AWS::AppStream::ImageBuilder
     Properties:
-      Name: !Sub ${ProjectName}-appstream-image-builder
-      DisplayName: !Sub ${ProjectName}-appstream-image-builder
+      Name: !Sub ${ProjectName}-appstream-image-builder-${ImageName}
+      DisplayName: !Sub ${ProjectName}-appstream-image-builder-${ImageName}
       Description: !Sub AppStream 2.0 Image Builder (${ImageName})
       AppstreamAgentVersion: LATEST
       EnableDefaultInternetAccess: !Ref EnableDefaultInternetAccess
       ImageName: !Ref ImageName
       InstanceType: !Ref InstanceType
       IamRoleArn:
-        Fn::ImportValue: !Sub ${AWS::Region}-${S3StackName}-AppStreamS3BucketRoleArn
+        Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-AppStreamS3BucketRoleArn
       VpcConfig:
         SubnetIds:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
         SecurityGroupIds:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+      AccessEndpoints:
+        - EndpointType: STREAMING
+          VpceId: !Ref AppStreamStreamingInterfaceEndpoint
       Tags:
         - Key: Name
-          Value: !Sub ${ProjectName}-appstream-image-builder
+          Value: !Sub ${ProjectName}-appstream-image-builder-${ImageName}
+  AppStreamStreamingInterfaceEndpoint:
+    Type: AWS::EC2::VPCEndpoint
+    Properties:
+      PrivateDnsEnabled: true
+      SubnetIds:
+        - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
+      SecurityGroupIds:
+        - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+      ServiceName: !Sub com.amazonaws.${AWS::Region}.appstream.streaming
+      VpcEndpointType: Interface
+      VpcId:
+        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
 Outputs:
   AppStreamImageBuilder:
     Value: !Ref AppStreamImageBuilder
