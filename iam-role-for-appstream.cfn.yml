@@ -7,11 +7,11 @@ Parameters:
     Type: String
     Default: vdi
 Resources:
-  AppStreamS3BucketRole:
+  AppStreamServiceRole:
     Type: AWS::IAM::Role
     Properties:
-      RoleName: !Sub ${ProjectName}-AppStreamS3BucketRole
-      Path: /
+      RoleName: !Sub ${ProjectName}-AppStreamServiceRole
+      Path: /service-role/
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -21,8 +21,10 @@ Resources:
                 - appstream.amazonaws.com
             Action:
               - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/AmazonAppStreamServiceAccess
       Policies:
-        - PolicyName: !Sub ${ProjectName}-AppStreamS3BucketRole-policy
+        - PolicyName: !Sub ${ProjectName}-AppStreamServiceRole-policy
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -49,7 +51,7 @@ Resources:
                 Resource:
                   - !Sub arn:aws:s3:::${ProjectName}-*/*
 Outputs:
-  AppStreamS3BucketRoleArn:
-    Value: !GetAtt AppStreamS3BucketRole.Arn
+  AppStreamServiceRoleArn:
+    Value: !GetAtt AppStreamServiceRole.Arn
     Export:
-      Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamS3BucketRoleArn
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamServiceRoleArn

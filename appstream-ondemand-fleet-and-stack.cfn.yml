@@ -14,47 +14,68 @@ Parameters:
     Description: Set the project name.
     Type: String
     Default: vdi
+  ImageName:
+    Description: Set the AppStream 2.0 image name.
+    Type: String
+    Default: al2-with-docker
   InstanceType:
     Description: Set the AppStream 2.0 instance type.
     Type: String
     Default: stream.standard.small
-    AllowedValues:
-      - stream.standard.small
-      - stream.standard.medium
-      - stream.standard.large
-      - stream.standard.xlarge
-      - stream.standard.2xlarge
-  Platform:
-    Description: Set the AppStream 2.0 platform.
-    Type: String
-    Default: AMAZON_LINUX2
-    AllowedValues:
-      - AMAZON_LINUX2
-      - WINDOWS_SERVER_2019
+  DesiredInstances:
+    Description: Set the desired number of streaming instances.
+    Type: Number
+    Default: 1
   EnableDefaultInternetAccess:
-    Description: Enable the AppStream 2.0 default internet access.
+    Description: Enable the default internet access.
     Type: String
     Default: false
     AllowedValues:
       - true
       - false
+  PreferredProtocol:
+    Description: Set the streaming protocol.
+    Type: String
+    Default: TCP
+    AllowedValues:
+      - TCP
+      - UDP
+  MaxUserDurationInSeconds:
+    Description: Set the max user duration in seconds.
+    Type: Number
+    MinValue: 600
+    MaxValue: 360000
+    Default: 57600
+  DisconnectTimeoutInSeconds:
+    Description: Set the disconnect timeout in seconds.
+    Type: Number
+    MinValue: 60
+    MaxValue: 360000
+    Default: 900
+  IdleDisconnectTimeoutInSeconds:
+    Description: Set the idle disconnect timeout in seconds.
+    Type: Number
+    MinValue: 0
+    MaxValue: 3600
+    Default: 900
 Resources:
   AppStreamFleet:
     Type: AWS::AppStream::Fleet
     Properties:
-      Name: !Sub ${ProjectName}-appstream-elastic-fleet
-      DisplayName: !Sub ${ProjectName}-appstream-elastic-fleet
+      Name: !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}
+      DisplayName: !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}
       Description: AppStream 2.0 elastic fleet
-      FleetType: ELASTIC
+      FleetType: ON_DEMAND
+      ImageName: !Ref ImageName
       InstanceType: !Ref InstanceType
-      Platform: !Ref Platform
-      MaxUserDurationInSeconds: 57600
-      DisconnectTimeoutInSeconds: 900
-      IdleDisconnectTimeoutInSeconds: 900
-      MaxConcurrentSessions: 5
+      ComputeCapacity:
+        DesiredInstances: !Ref DesiredInstances
+      MaxUserDurationInSeconds: !Ref MaxUserDurationInSeconds
+      DisconnectTimeoutInSeconds: !Ref DisconnectTimeoutInSeconds
+      IdleDisconnectTimeoutInSeconds: !Ref IdleDisconnectTimeoutInSeconds
       StreamView: DESKTOP
       IamRoleArn:
-        Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-AppStreamS3BucketRoleArn
+        Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-AppStreamServiceRoleArn
       EnableDefaultInternetAccess: !Ref EnableDefaultInternetAccess
       VpcConfig:
         SubnetIds:
@@ -63,20 +84,17 @@ Resources:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet2
         SecurityGroupIds:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
-      # SessionScriptS3Location:
-      #   S3Bucket: String
-      #   S3Key: String
       Tags:
         - Key: Name
-          Value: !Sub ${ProjectName}-appstream-elastic-fleet
+          Value: !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}
   AppStreamStack:
     Type: AWS::AppStream::Stack
     Properties:
-      Name: !Sub ${ProjectName}-appstream-elastic-fleet-stack
-      DisplayName: !Sub ${ProjectName}-appstream-elastic-fleet-stack
-      Description: AppStream 2.0 elastic fleet stack
+      Name: !Sub ${ProjectName}-appstream-ondemand-fleet-stack-${ImageName}
+      DisplayName: !Sub ${ProjectName}-appstream-ondemand-fleet-stack-${ImageName}
+      Description: AppStream 2.0 on-demand fleet stack
       StreamingExperienceSettings:
-        PreferredProtocol: TCP
+        PreferredProtocol: !Ref PreferredProtocol
       StorageConnectors:
         - ConnectorType: HOMEFOLDERS
       UserSettings:
@@ -90,10 +108,6 @@ Resources:
           Permission: ENABLED
         - Action: PRINTING_TO_LOCAL_DEVICE
           Permission: ENABLED
-      # AccessEndpoints:
-      #   - EndpointType: STREAMING
-      #     VpceId:
-      #       Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
       # ApplicationSettings:
       #   Enabled: true
       #   SettingsGroup: String
@@ -103,14 +117,29 @@ Resources:
       #   - String
       # FeedbackURL: String
       # RedirectURL: String
+      # AccessEndpoints:
+      #   - EndpointType: STREAMING
+      #     VpceId: !Ref AppStreamStreamingInterfaceEndpoint
       Tags:
         - Key: Name
-          Value: !Sub ${ProjectName}-appstream-elastic-fleet-stack
+          Value: !Sub ${ProjectName}-appstream-ondemand-fleet-stack-${ImageName}
   AppStreamStackFleetAssociation:
     Type: AWS::AppStream::StackFleetAssociation
     Properties:
       FleetName: !Ref AppStreamFleet
       StackName: !Ref AppStreamStack
+#   AppStreamStreamingInterfaceEndpoint:
+#     Type: AWS::EC2::VPCEndpoint
+#     Properties:
+#       PrivateDnsEnabled: true
+#       SubnetIds:
+#         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
+#       SecurityGroupIds:
+#         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+#       ServiceName: !Sub com.amazonaws.${AWS::Region}.appstream.streaming
+#       VpcEndpointType: Interface
+#       VpcId:
+#         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
 Outputs:
   AppStreamFleet:
     Value: !Ref AppStreamFleet

@@ -41,20 +41,24 @@ Installation
         iam-role-for-appstream.cfn.yml vdi-dev-iam-role-for-appstream
     ```
 
-5.  Deploy stacks of AppStream 2.0.
+5.  Deploy stacks of an AppStream 2.0 image builder.
 
-    - Linux image builder
+    ```sh
+    $ rain deploy \
+        --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-role-for-appstream \
+        appstream-image-builder.cfn.yml vdi-dev-appstream-linux-image-builder
+    ```
 
-      ```sh
-      $ rain deploy \
-          --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-role-for-appstream \
-          appstream-image-builder.cfn.yml vdi-dev-appstream-linux-image-builder
-      ```
+6.  Execute the following script and create an AppStream 2.0 image.
 
-    - Linux elastic fleet and stack
+    - `scripts/create_al2_image.sh`
 
-      ```sh
-      $ rain deploy \
-          --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-role-for-appstream \
-          appstream-elatic-fleet-stack.cfn.yml vdi-dev-appstream-elatic-fleet-stack
-      ```
+7.  Deploy stacks of an AppStream 2.0 on-demand fleet.
+
+    ```sh
+    $ rain deploy \
+        --params ProjectName=vdi-dev,ImageName=al2-with-docker,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-role-for-appstream \
+        appstream-ondemand-fleet-and-stack.cfn.yml vdi-dev-appstream-ondemand-fleet-and-stack
+    $ aws appstream start-fleet \
+        --name vdi-dev-appstream-ondemand-fleet-al2-with-docker
+    ```

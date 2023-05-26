@@ -23,7 +23,7 @@ Parameters:
     Type: String
     Default: stream.standard.small
   EnableDefaultInternetAccess:
-    Description: Enable the AppStream 2.0 default internet access.
+    Description: Enable the default internet access.
     Type: String
     Default: false
     AllowedValues:
@@ -36,35 +36,35 @@ Resources:
       Name: !Sub ${ProjectName}-appstream-image-builder-${ImageName}
       DisplayName: !Sub ${ProjectName}-appstream-image-builder-${ImageName}
       Description: !Sub AppStream 2.0 Image Builder (${ImageName})
-      AppstreamAgentVersion: LATEST
+      # AppstreamAgentVersion: LATEST
       EnableDefaultInternetAccess: !Ref EnableDefaultInternetAccess
       ImageName: !Ref ImageName
       InstanceType: !Ref InstanceType
       IamRoleArn:
-        Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-AppStreamS3BucketRoleArn
+        Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-AppStreamServiceRoleArn
       VpcConfig:
         SubnetIds:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
         SecurityGroupIds:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
-      AccessEndpoints:
-        - EndpointType: STREAMING
-          VpceId: !Ref AppStreamStreamingInterfaceEndpoint
+      # AccessEndpoints:
+      #   - EndpointType: STREAMING
+      #     VpceId: !Ref AppStreamStreamingInterfaceEndpoint
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-appstream-image-builder-${ImageName}
-  AppStreamStreamingInterfaceEndpoint:
-    Type: AWS::EC2::VPCEndpoint
-    Properties:
-      PrivateDnsEnabled: true
-      SubnetIds:
-        - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
-      SecurityGroupIds:
-        - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
-      ServiceName: !Sub com.amazonaws.${AWS::Region}.appstream.streaming
-      VpcEndpointType: Interface
-      VpcId:
-        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
+#   AppStreamStreamingInterfaceEndpoint:
+#     Type: AWS::EC2::VPCEndpoint
+#     Properties:
+#       PrivateDnsEnabled: true
+#       SubnetIds:
+#         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
+#       SecurityGroupIds:
+#         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+#       ServiceName: !Sub com.amazonaws.${AWS::Region}.appstream.streaming
+#       VpcEndpointType: Interface
+#       VpcId:
+#         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
 Outputs:
   AppStreamImageBuilder:
     Value: !Ref AppStreamImageBuilder
