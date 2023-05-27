@@ -11,7 +11,7 @@ Resources:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub ${ProjectName}-AppStreamServiceRole
-      Path: /service-role/
+      Path: /
       AssumeRolePolicyDocument:
         Version: 2012-10-17
         Statement:
@@ -50,8 +50,28 @@ Resources:
                   - s3-object-lambda:*MultipartUpload*
                 Resource:
                   - !Sub arn:aws:s3:::${ProjectName}-*/*
+  AppStreamAutoScalingRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: !Sub ${ProjectName}-AppStreamAutoScalingRole
+      Path: /
+      AssumeRolePolicyDocument:
+        Version: 2012-10-17
+        Statement:
+          - Effect: Allow
+            Principal:
+              Service:
+                - application-autoscaling.amazonaws.com
+            Action:
+              - sts:AssumeRole
+      ManagedPolicyArns:
+        - arn:aws:iam::aws:policy/service-role/ApplicationAutoScalingForAmazonAppStreamAccess
 Outputs:
   AppStreamServiceRoleArn:
     Value: !GetAtt AppStreamServiceRole.Arn
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamServiceRoleArn
+  AppStreamAutoScalingRoleArn:
+    Value: !GetAtt AppStreamAutoScalingRole.Arn
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamAutoScalingRoleArn

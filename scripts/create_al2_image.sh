@@ -9,8 +9,8 @@ IMAGE_DESCRIPTION="$(cat /etc/system-release) with Docker"
 # Install packages
 sudo yum -y upgrade
 sudo yum -y install \
-  colordiff curl docker git ImageMagick jq nkf p7zip pandoc pbzip2 pigz time \
-  tmux traceroute tree vim-enhanced wget whois zsh \
+  aws-cli colordiff curl docker git ImageMagick jq nkf p7zip pandoc pbzip2 \
+  pigz time tmux traceroute tree vim-enhanced wget whois zsh \
   ibus-kkc ipa-gothic-fonts ipa-mincho-fonts vlgothic-p-fonts
 
 [[ -f '/usr/bin/google-chrome-stable' ]] \
@@ -39,15 +39,17 @@ sudo python3 -m pip install -U --no-cache-dir \
 # Update system configurations
 sudo systemctl enable docker.service
 sudo systemctl enable containerd.service
+
 sudo ln -sf /usr/bin/google-chrome-stable /usr/bin/chromium
-echo "GTK_THEME='Adwaita-dark'" | sudo tee /etc/profile.d/gtk-theme.sh
+[[ $(grep -ce '^GTK_THEME=' /etc/environment) -gt 0 ]] \
+  || printf "GTK_THEME='Adwaita-dark'\n" | sudo tee /etc/environment
 
+printf "as2-streaming-user\tALL=(ALL)\tNOPASSWD: ALL\n" \
+  | sudo tee /etc/sudoers.d/as2-streaming-user
 
-# Configure session scripts
-sudo sed -i \
-  -e 's/^\(wheel:x:[0-9]\+:ec2-user\)$/\1,as2-streaming-user/' \
-  -e 's/^\(docker:x:[0-9]\+:\)$/\1as2-streaming-user/' \
-  /etc/group
+[[ $(grep -ce 'as2-streaming-user' /etc/passwd) -gt 0 ]] \
+  || sudo useradd -m as2-streaming-user
+sudo usermod -aG docker as2-streaming-user
 
 
 # Create an AppStream 2.0 image
@@ -55,7 +57,8 @@ sudo AppStreamImageAssistant add-application \
   --name 'gnome-terminal' \
   --display-name 'Terminal' \
   --absolute-app-path '/usr/bin/gnome-terminal' \
-  --absolute-icon-path '/usr/share/icons/gnome/256x256/apps/utilities-terminal.png'
+  --absolute-icon-path '/usr/share/icons/gnome/256x256/apps/utilities-terminal.png' \
+  --launch-parameters '"--working-directory=/home/as2-streaming-user"'
 sudo AppStreamImageAssistant add-application \
   --name 'google-chrome' \
   --display-name 'Google Chrome' \

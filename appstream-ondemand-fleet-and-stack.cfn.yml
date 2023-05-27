@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: AppStream 2.0 elastic fleet with an IAM role
+Description: AppStream 2.0 on-demand fleet and stack
 Parameters:
   VpcStackName:
     Description: Set the VPC stack name.
@@ -36,7 +36,7 @@ Parameters:
   PreferredProtocol:
     Description: Set the streaming protocol.
     Type: String
-    Default: TCP
+    Default: UDP
     AllowedValues:
       - TCP
       - UDP
@@ -59,12 +59,22 @@ Parameters:
     MaxValue: 3600
     Default: 900
 Resources:
+  AppStreamSecurityGroup:
+    Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupName: !Sub ${ProjectName}-appstream-security-group
+      GroupDescription: AppStream 2.0 security group
+      VpcId:
+        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-appstream-security-group
   AppStreamFleet:
     Type: AWS::AppStream::Fleet
     Properties:
       Name: !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}
       DisplayName: !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}
-      Description: AppStream 2.0 elastic fleet
+      Description: AppStream 2.0 on-demand fleet
       FleetType: ON_DEMAND
       ImageName: !Ref ImageName
       InstanceType: !Ref InstanceType
@@ -83,7 +93,7 @@ Resources:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet1
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet2
         SecurityGroupIds:
-          - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+          - !Ref AppStreamSecurityGroup
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}
@@ -141,6 +151,10 @@ Resources:
 #       VpcId:
 #         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
 Outputs:
+  AppStreamSecurityGroup:
+    Value: !Ref AppStreamSecurityGroup
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamSecurityGroup
   AppStreamFleet:
     Value: !Ref AppStreamFleet
     Export:

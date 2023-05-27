@@ -1,0 +1,41 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: AppStream 2.0 stack user association
+Parameters:
+  AppStreamStackName:
+    Description: Set the AppStream stack name.
+    Type: String
+    Default: appstream-ondemand-fleet-and-stack
+  UserName:
+    Description: Set the E-mail address.
+    Type: String
+#   FirstName:
+#     Description: Set the first name.
+#     Type: String
+#   LastName:
+#     Description: Set the last name.
+#     Type: String
+Resources:
+  AppStreamStackUserAssociation:
+    Type: AWS::AppStream::StackUserAssociation
+    Properties:
+      UserName: !Ref UserName
+      StackName:
+        Fn::ImportValue: !Sub ${AWS::Region}-${AppStreamStackName}-AppStreamStack
+      SendEmailNotification: true
+      AuthenticationType: USERPOOL
+#     DependsOn:
+#       - AppStreamUser
+#   AppStreamUser:
+#     Type: AWS::AppStream::User
+#     Properties:
+#       UserName: !Ref UserName
+#       FirstName: !Ref FirstName
+#       LastName: !Ref LastName
+#       # MessageAction: RESEND
+#       AuthenticationType: USERPOOL
+# Outputs:
+#   AppStreamUser:
+#     Value: !Ref AppStreamUser
+#     Export:
+#       Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamUser

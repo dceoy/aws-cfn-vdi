@@ -1,0 +1,136 @@
+---
+AWSTemplateFormatVersion: 2010-09-09
+Description: AppStream 2.0 fleet auto scaling
+Parameters:
+  AppStreamStackName:
+    Description: Set the AppStream stack name.
+    Type: String
+    Default: appstream-ondemand-fleet-and-stack
+  IamStackName:
+    Description: Set the S3 stack name.
+    Type: String
+    Default: s3-and-iam-for-appstream
+  MinCapacity:
+    Description: Set the minimum capacity.
+    Type: Number
+    Default: 1
+  MaxCapacity:
+    Description: Set the maximum capacity.
+    Type: Number
+    Default: 5
+Resources:
+  AutoScalingScalableTarget:
+    Type: AWS::ApplicationAutoScaling::ScalableTarget
+    Properties:
+      MinCapacity: !Ref MinCapacity
+      MaxCapacity: !Ref MaxCapacity
+      ResourceId:
+        Fn::Join:
+          - ''
+          - - fleet/
+            - Fn::ImportValue: !Sub ${AWS::Region}-${AppStreamStackName}-AppStreamFleet
+      RoleARN:
+        Fn::ImportValue: !Sub ${AWS::Region}-${IamStackName}-AppStreamAutoScalingRoleArn
+      ScalableDimension: appstream:fleet:DesiredCapacity
+      ServiceNamespace: appstream
+  AutoScalingScaleOutPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName:
+        Fn::Join:
+          - ''
+          - - Fn::ImportValue: !Sub ${AWS::Region}-${AppStreamStackName}-AppStreamFleet
+            - -scale-out-policy
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref AutoScalingScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ChangeInCapacity
+        Cooldown: 120
+        MetricAggregationType: Average
+        StepAdjustments:
+          - MetricIntervalLowerBound: 0.0
+            ScalingAdjustment: 2
+  AutoScalingScaleInPolicy:
+    Type: AWS::ApplicationAutoScaling::ScalingPolicy
+    Properties:
+      PolicyName:
+        Fn::Join:
+          - ''
+          - - Fn::ImportValue: !Sub ${AWS::Region}-${AppStreamStackName}-AppStreamFleet
+            - -scale-in-policy
+      PolicyType: StepScaling
+      ScalingTargetId: !Ref AutoScalingScalableTarget
+      StepScalingPolicyConfiguration:
+        AdjustmentType: ChangeInCapacity
+        Cooldown: 360
+        MetricAggregationType: Average
+        StepAdjustments:
+          - MetricIntervalUpperBound: 0.0
+            ScalingAdjustment: -1
+  CloudWatchScaleOutAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+          - ''
+          - - Fn::ImportValue: !Sub ${AWS::Region}-${AppStreamStackName}-AppStreamFleet
+            - -scale-out-alarm
+      AlarmDescription: Scale out the fleet when using 75% capacity
+      AlarmActions:
+        - !Ref AutoScalingScaleOutPolicy
+      Namespace: AWS/AppStream
+      MetricName: CapacityUtilization
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      Threshold: 75
+      Unit: Percent
+      Statistic: Average
+      EvaluationPeriods: 3
+      Period: 60
+      Dimensions:
+        - Name: Fleet
+          Value:
+            Fn::ImportValue: !Sub ${AWS::Region}-${AppStreamStackName}-AppStreamFleet
+  CloudWatchScaleInAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmName:
+        Fn::Join:
+          - ''
+          - - Fn::ImportValue: !Sub ${AWS::Region}-${AppStreamStackName}-AppStreamFleet
+            - -scale-in-alarm
+      AlarmDescription: Scale in the fleet when using 25% capacity
+      AlarmActions:
+        - !Ref AutoScalingScaleInPolicy
+      Namespace: AWS/AppStream
+      MetricName: CapacityUtilization
+      ComparisonOperator: LessThanOrEqualToThreshold
+      Threshold: 25
+      Unit: Percent
+      Statistic: Average
+      EvaluationPeriods: 10
+      Period: 120
+      Dimensions:
+        - Name: Fleet
+          Value:
+            Fn::ImportValue: !Sub ${AWS::Region}-${AppStreamStackName}-AppStreamFleet
+Outputs:
+  AutoScalingScalableTarget:
+    Value: !Ref AutoScalingScalableTarget
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AutoScalingScalableTarget
+  AutoScalingScaleOutPolicy:
+    Value: !Ref AutoScalingScaleOutPolicy
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AutoScalingScaleOutPolicy
+  AutoScalingScaleInPolicy:
+    Value: !Ref AutoScalingScaleInPolicy
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AutoScalingScaleInPolicy
+  CloudWatchScaleOutAlarm:
+    Value: !Ref CloudWatchScaleOutAlarm
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-CloudWatchScaleOutAlarm
+  CloudWatchScaleInAlarm:
+    Value: !Ref CloudWatchScaleInAlarm
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-CloudWatchScaleInAlarm

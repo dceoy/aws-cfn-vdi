@@ -62,3 +62,32 @@ Installation
     $ aws appstream start-fleet \
         --name vdi-dev-appstream-ondemand-fleet-al2-with-docker
     ```
+
+8.  Deploy stacks of AppStream 2.0 auto scaling.
+
+    ```sh
+    $ rain deploy \
+        --params AppStreamStackName=vdi-dev-appstream-ondemand-fleet-and-stack,IamStackName=vdi-dev-iam-role-for-appstream \
+        appstream-auto-scaling.cfn.yml vdi-dev-appstream-auto-scaling
+    ```
+
+9.  Associate a new user with a stack.
+
+    ```sh
+    $ aws appstream create-user \
+        --user-name foo.bar@example.com \
+        --first-name foo \
+        --last-name bar \
+        --authentication-type USERPOOL
+    $ rain deploy \
+        --params UserName=foo.bar@example.com,AppStreamStackName=vdi-dev-appstream-ondemand-fleet-and-stack \
+        appstream-user-association.cfn.yml vdi-dev-appstream-user-association
+    ```
+
+    Delete a user.
+
+    ```sh
+    $ aws appstream delete-user \
+        --user-name foo.bar@example.com \
+        --authentication-type USERPOOL
+    ```
