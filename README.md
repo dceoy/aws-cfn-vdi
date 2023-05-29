@@ -38,14 +38,14 @@ Installation
         s3-bucket-for-appstream.cfn.yml vdi-dev-s3-bucket-for-appstream
     $ rain deploy \
         --params ProjectName=vdi-dev \
-        iam-role-for-appstream.cfn.yml vdi-dev-iam-role-for-appstream
+        iam-roles-for-appstream.cfn.yml vdi-dev-iam-roles-for-appstream
     ```
 
 5.  Deploy stacks of an AppStream 2.0 image builder.
 
     ```sh
     $ rain deploy \
-        --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-role-for-appstream \
+        --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-roles-for-appstream \
         appstream-image-builder.cfn.yml vdi-dev-appstream-linux-image-builder
     ```
 
@@ -57,7 +57,7 @@ Installation
 
     ```sh
     $ rain deploy \
-        --params ProjectName=vdi-dev,ImageName=al2-with-docker,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-role-for-appstream \
+        --params ProjectName=vdi-dev,ImageName=al2-with-docker,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-roles-for-appstream \
         appstream-ondemand-fleet-and-stack.cfn.yml vdi-dev-appstream-ondemand-fleet-and-stack
     $ aws appstream start-fleet \
         --name vdi-dev-appstream-ondemand-fleet-al2-with-docker
@@ -67,7 +67,7 @@ Installation
 
     ```sh
     $ rain deploy \
-        --params AppStreamStackName=vdi-dev-appstream-ondemand-fleet-and-stack,IamStackName=vdi-dev-iam-role-for-appstream \
+        --params AppStreamStackName=vdi-dev-appstream-ondemand-fleet-and-stack,IamStackName=vdi-dev-iam-roles-for-appstream \
         appstream-auto-scaling.cfn.yml vdi-dev-appstream-auto-scaling
     ```
 
@@ -87,6 +87,7 @@ Installation
     Delete a user.
 
     ```sh
+    $ rain rm -y vdi-dev-appstream-user-association
     $ aws appstream delete-user \
         --user-name foo.bar@example.com \
         --authentication-type USERPOOL

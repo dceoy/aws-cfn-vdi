@@ -1,6 +1,6 @@
 ---
 AWSTemplateFormatVersion: 2010-09-09
-Description: IAM role for AppStream 2.0
+Description: IAM roles for AppStream 2.0
 Parameters:
   ProjectName:
     Description: Set the project name.
