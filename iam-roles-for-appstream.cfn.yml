@@ -24,7 +24,15 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonAppStreamServiceAccess
       Policies:
-        - PolicyName: !Sub ${ProjectName}-AppStreamServiceRole-policy
+        - PolicyName: !Sub ${ProjectName}-assume-role-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action: sts:AssumeRole
+                Resource:
+                  - !Sub arn:aws:iam::${AWS::AccountId}:role/${ProjectName}-AppStreamServiceRole
+        - PolicyName: !Sub ${ProjectName}-s3-access-policy
           PolicyDocument:
             Version: 2012-10-17
             Statement:
@@ -50,6 +58,18 @@ Resources:
                   - s3-object-lambda:*MultipartUpload*
                 Resource:
                   - !Sub arn:aws:s3:::${ProjectName}-*/*
+        - PolicyName: !Sub ${ProjectName}-efs-access-policy
+          PolicyDocument:
+            Version: 2012-10-17
+            Statement:
+              - Effect: Allow
+                Action:
+                  - elasticfilesystem:Describe*
+                  - elasticfilesystem:List*
+                  - elasticfilesystem:ClientMount
+                  - elasticfilesystem:ClientWrite
+                Resource:
+                  - !Sub arn:aws:elasticfilesystem:${AWS::Region}:${AWS::AccountId}:*/*
   AppStreamAutoScalingRole:
     Type: AWS::IAM::Role
     Properties:

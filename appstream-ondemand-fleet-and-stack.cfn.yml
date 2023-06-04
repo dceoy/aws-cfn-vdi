@@ -59,16 +59,6 @@ Parameters:
     MaxValue: 3600
     Default: 900
 Resources:
-  AppStreamSecurityGroup:
-    Type: AWS::EC2::SecurityGroup
-    Properties:
-      GroupName: !Sub ${ProjectName}-appstream-security-group
-      GroupDescription: AppStream 2.0 security group
-      VpcId:
-        Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
-      Tags:
-        - Key: Name
-          Value: !Sub ${ProjectName}-appstream-security-group
   AppStreamFleet:
     Type: AWS::AppStream::Fleet
     Properties:
@@ -93,7 +83,7 @@ Resources:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet1
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet2
         SecurityGroupIds:
-          - !Ref AppStreamSecurityGroup
+          - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}
@@ -150,11 +140,17 @@ Resources:
 #       VpcEndpointType: Interface
 #       VpcId:
 #         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
+# AppStreamSecurityGroup:
+#   Type: AWS::EC2::SecurityGroup
+#   Properties:
+#     GroupName: !Sub ${ProjectName}-appstream-security-group
+#     GroupDescription: AppStream 2.0 security group
+#     VpcId:
+#       Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
+#     Tags:
+#       - Key: Name
+#         Value: !Sub ${ProjectName}-appstream-security-group
 Outputs:
-  AppStreamSecurityGroup:
-    Value: !Ref AppStreamSecurityGroup
-    Export:
-      Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamSecurityGroup
   AppStreamFleet:
     Value: !Ref AppStreamFleet
     Export:
@@ -163,3 +159,7 @@ Outputs:
     Value: !Ref AppStreamStack
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamStack
+# AppStreamSecurityGroup:
+#   Value: !Ref AppStreamSecurityGroup
+#   Export:
+#     Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamSecurityGroup

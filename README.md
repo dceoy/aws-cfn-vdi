@@ -41,7 +41,15 @@ Installation
         iam-roles-for-appstream.cfn.yml vdi-dev-iam-roles-for-appstream
     ```
 
-5.  Deploy stacks of an AppStream 2.0 image builder.
+5.  Deploy EFS stacks. (optional)
+
+    ```sh
+    $ rain deploy \
+        --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints \
+        efs-for-appstream.cfn.yml vdi-dev-efs-for-appstream
+    ```
+
+6.  Deploy stacks of an AppStream 2.0 image builder.
 
     ```sh
     $ rain deploy \
@@ -49,11 +57,13 @@ Installation
         appstream-image-builder.cfn.yml vdi-dev-appstream-linux-image-builder
     ```
 
-6.  Execute the following script and create an AppStream 2.0 image.
+7.  Execute the following script and create an AppStream 2.0 image in an AppStream 2.0 image builder instance.
 
-    - `scripts/create_al2_image.sh`
+    ```sh
+    $ curl -SL https://raw.githubusercontent.com/dceoy/aws-cfn-vdi/main/scripts/create_al2_image.sh | bash
+    ```
 
-7.  Deploy stacks of an AppStream 2.0 on-demand fleet.
+8.  Deploy stacks of an AppStream 2.0 on-demand fleet.
 
     ```sh
     $ rain deploy \
@@ -63,20 +73,12 @@ Installation
         --name vdi-dev-appstream-ondemand-fleet-al2-with-docker
     ```
 
-8.  Deploy stacks for AppStream 2.0 auto scaling. (optional)
+9.  Deploy stacks for AppStream 2.0 auto scaling. (optional)
 
     ```sh
     $ rain deploy \
         --params AppStreamStackName=vdi-dev-appstream-ondemand-fleet-and-stack,IamStackName=vdi-dev-iam-roles-for-appstream \
         appstream-auto-scaling.cfn.yml vdi-dev-appstream-auto-scaling
-    ```
-
-9.  Deploy EFS stacks. (optional)
-
-    ```sh
-    $ rain deploy \
-        --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,AppStreamStackName=vdi-dev-appstream-ondemand-fleet-and-stack \
-        efs-for-appstream.cfn.yml vdi-dev-efs-for-appstream
     ```
 
 10. Associate a new user with a stack.

@@ -6,10 +6,6 @@ Parameters:
     Description: Set the VPC stack name.
     Type: String
     Default: vpc-private-subnets-with-gateway-endpoints
-  AppStreamStackName:
-    Description: Set the AppStream 2.0 fleet stack name.
-    Type: String
-    Default: appstream-ondemand-fleet-and-stack
   ProjectName:
     Description: Set the project name.
     Type: String
@@ -54,7 +50,7 @@ Resources:
           ToPort: 2049
           IpProtocol: tcp
           SourceSecurityGroupId:
-            Fn::ImportValue: !Sub ${AWS::Region}-${AppStreamSecurityGroup}-AppStreamSecurityGroup
+            Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
       VpcId:
         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
       Tags:
