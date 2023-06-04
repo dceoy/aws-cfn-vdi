@@ -17,7 +17,7 @@ Installation
 
 2.  Install [Rain](https://github.com/aws-cloudformation/rain) and [AWS CLI](https://aws.amazon.com/cli/), and set `~/.aws/config` and `~/.aws/credentials`.
 
-3.  Deploy stacks for VPC.
+3.  Deploy VPC stacks.
 
     ```sh
     $ rain deploy \
@@ -63,7 +63,7 @@ Installation
         --name vdi-dev-appstream-ondemand-fleet-al2-with-docker
     ```
 
-8.  Deploy stacks of AppStream 2.0 auto scaling.
+8.  Deploy stacks for AppStream 2.0 auto scaling. (optional)
 
     ```sh
     $ rain deploy \
@@ -71,7 +71,15 @@ Installation
         appstream-auto-scaling.cfn.yml vdi-dev-appstream-auto-scaling
     ```
 
-9.  Associate a new user with a stack.
+9.  Deploy EFS stacks. (optional)
+
+    ```sh
+    $ rain deploy \
+        --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,AppStreamStackName=vdi-dev-appstream-ondemand-fleet-and-stack \
+        efs-for-appstream.cfn.yml vdi-dev-efs-for-appstream
+    ```
+
+10. Associate a new user with a stack.
 
     ```sh
     $ aws appstream create-user \
