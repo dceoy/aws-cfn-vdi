@@ -46,7 +46,7 @@ Installation
     ```sh
     $ rain deploy \
         --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints \
-        efs-for-appstream.cfn.yml vdi-dev-efs-for-appstream
+        aws-cfn-nfs/efs-with-access-point.cfn.yml vdi-dev-efs-with-access-point
     ```
 
 6.  Deploy stacks of an AppStream 2.0 image builder.
