@@ -9,8 +9,8 @@ Parameters:
 Resources:
   AppStreamS3Bucket:
     Type: AWS::S3::Bucket
-    DeletionPolicy: Delete
-    UpdateReplacePolicy: Retain
+    # DeletionPolicy: Retain
+    # UpdateReplacePolicy: Retain
     Properties:
       BucketName: !Sub ${ProjectName}-appstream-${AWS::AccountId}
       BucketEncryption:
@@ -26,13 +26,15 @@ Resources:
         Status: Enabled
       LifecycleConfiguration:
         Rules:
-          - Id: IntelligentTiering
+          - Id: Move-to-Intelligent-Tiering-after-0day
             Status: Enabled
             Transitions:
               - TransitionInDays: 0
                 StorageClass: INTELLIGENT_TIERING
             NoncurrentVersionExpiration:
               NoncurrentDays: 7
+            AbortIncompleteMultipartUpload:
+              DaysAfterInitiation: 7
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-appstream-${AWS::AccountId}

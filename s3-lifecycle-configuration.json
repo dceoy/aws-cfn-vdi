@@ -1,0 +1,21 @@
+{
+  "Rules": [
+    {
+      "ID": "Move-to-Intelligent-Tiering-after-0day",
+      "Status": "Enabled",
+      "Filter": {},
+      "Transitions": [
+        {
+          "Days": 0,
+          "StorageClass": "INTELLIGENT_TIERING"
+        }
+      ],
+      "NoncurrentVersionExpiration": {
+        "NoncurrentDays": 7
+      },
+      "AbortIncompleteMultipartUpload": {
+        "DaysAfterInitiation": 7
+      }
+    }
+  ]
+}
