@@ -82,25 +82,24 @@ sudo python3 -m pip install -U --no-cache-dir \
 
 
 # Install mountpoint-s3
-if [[ ! -f '/opt/mountpoint-s3/target/release/mount-s3' ]]; then
-  git clone --depth 1 --recurse-submodules \
-    https://github.com/awslabs/mountpoint-s3.git
-  sudo mv mountpoint-s3 /opt/
-  cd /opt/mountpoint-s3
-  cargo build --release
-  cd -
-fi
+#if [[ ! -f '/opt/mountpoint-s3/target/release/mount-s3' ]]; then
+#  git clone --depth 1 --recurse-submodules \
+#    https://github.com/awslabs/mountpoint-s3.git
+#  sudo mv mountpoint-s3 /opt/
+#  cd /opt/mountpoint-s3
+#  cargo build --release
+#  cd -
+#fi
 
 
 # Set environment variables
-if [[ ! -s '/etc/environment' ]]; then
-  # shellcheck disable=SC2154
-  cat << EOF | sudo tee /etc/environment
-GTK_THEME='Adwaita-dark'
-AWS_REGION='${AWS_REGION}'
-AWS_ACCOUNT_ID='${AWS_ACCOUNT_ID}'
+# shellcheck disable=SC2154
+cat << EOF | sudo tee /etc/profile.d/user_env.sh
+export GTK_THEME='Adwaita-dark'
+export AWS_PROFILE='appstream_machine_role'
+export AWS_REGION='${AWS_REGION}'
+export AWS_ACCOUNT_ID='${AWS_ACCOUNT_ID}'
 EOF
-fi
 
 
 # Enable Docker
@@ -117,19 +116,23 @@ sudo usermod -aG docker as2-streaming-user
 
 
 # Create a script for mounting EFS
-efs_ap_json="$( \
-  aws --profile appstream_machine_role efs describe-access-points \
-    | jq ".AccessPoints[] | select(.Name == \"${PROJECT_NAME}-efs-accesspoint\")" \
-)"
-efs_fs_id="$(echo "${efs_ap_json}" | jq -r '.FileSystemId')"
-efs_ap_id="$(echo "${efs_ap_json}" | jq -r '.AccessPointId')"
+sudo cp -r ~/.aws /root/
 cat << EOF | sudo tee /opt/appstream/SessionScripts/mount-efs.sh
 #!/usr/bin/env bash
 
 set -euo pipefail
 
-[[ -d '/mnt/efs' ]] || mkdir -p /mnt/efs
-sudo mount -t efs -o tls,accesspoint=${efs_ap_id} ${efs_fs_id} /mnt/efs
+efs_ap_json="\$( \
+  aws --profile appstream_machine_role --region ${AWS_Region} efs describe-access-points \
+    | jq ".AccessPoints[] | select(.Name == \\"${PROJECT_NAME}-efs-accesspoint\\")" \
+)"
+efs_fs_id="\$(echo "\${efs_ap_json}" | jq -r '.FileSystemId')"
+efs_ap_id="\$(echo "\${efs_ap_json}" | jq -r '.AccessPointId')"
+
+if [[ -n "\${efs_ap_id}" ]] && [[ -n "\${efs_fs_id}" ]]; then
+  [[ -d '/mnt/efs' ]] || mkdir -p /mnt/efs
+  sudo mount -t efs -o tls,accesspoint=\${efs_ap_id} \${efs_fs_id} /mnt/efs
+fi
 EOF
 sudo chmod +x /opt/appstream/SessionScripts/mount-efs.sh
 

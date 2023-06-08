@@ -9,12 +9,12 @@ Parameters:
   UserName:
     Description: Set the E-mail address.
     Type: String
-#   FirstName:
-#     Description: Set the first name.
-#     Type: String
-#   LastName:
-#     Description: Set the last name.
-#     Type: String
+  FirstName:
+    Description: Set the first name.
+    Type: String
+  LastName:
+    Description: Set the last name.
+    Type: String
 Resources:
   AppStreamStackUserAssociation:
     Type: AWS::AppStream::StackUserAssociation
@@ -24,18 +24,18 @@ Resources:
         Fn::ImportValue: !Sub ${AWS::Region}-${AppStreamStackName}-AppStreamStack
       SendEmailNotification: true
       AuthenticationType: USERPOOL
-#     DependsOn:
-#       - AppStreamUser
-#   AppStreamUser:
-#     Type: AWS::AppStream::User
-#     Properties:
-#       UserName: !Ref UserName
-#       FirstName: !Ref FirstName
-#       LastName: !Ref LastName
-#       # MessageAction: RESEND
-#       AuthenticationType: USERPOOL
-# Outputs:
-#   AppStreamUser:
-#     Value: !Ref AppStreamUser
-#     Export:
-#       Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamUser
+    DependsOn:
+      - AppStreamUser
+  AppStreamUser:
+    Type: AWS::AppStream::User
+    Properties:
+      UserName: !Ref UserName
+      FirstName: !Ref FirstName
+      LastName: !Ref LastName
+      # MessageAction: RESEND
+      AuthenticationType: USERPOOL
+Outputs:
+  AppStreamUser:
+    Value: !Ref AppStreamUser
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamUser

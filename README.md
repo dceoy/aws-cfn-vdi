@@ -60,7 +60,7 @@ Installation
 7.  Execute the following script and create an AppStream 2.0 image in an AppStream 2.0 image builder instance.
 
     ```sh
-    $ curl -SL https://raw.githubusercontent.com/dceoy/aws-cfn-vdi/main/scripts/create_al2_image.sh | bash
+    $ curl -SL https://raw.githubusercontent.com/dceoy/aws-cfn-vdi/main/create_al2_image.sh | bash
     ```
 
 8.  Deploy stacks of an AppStream 2.0 on-demand fleet.
@@ -89,15 +89,17 @@ Installation
         --first-name foo \
         --last-name bar \
         --authentication-type USERPOOL
-    $ rain deploy \
-        --params UserName=foo.bar@example.com,AppStreamStackName=vdi-dev-appstream-ondemand-fleet-and-stack \
-        appstream-user-association.cfn.yml vdi-dev-appstream-user-association
+    $ aws appstream batch-associate-user-stack \
+        --user-stack-associations \
+        '[{"StackName": "vdi-dev-appstream-ondemand-fleet-stack-al2-with-docker", "UserName": "foo.bar@example.com", "AuthenticationType": "USERPOOL", "SendEmailNotification": true}]'
     ```
 
     Delete a user.
 
     ```sh
-    $ rain rm -y vdi-dev-appstream-user-association
+    $ aws appstream batch-disassociate-user-stack \
+        --user-stack-associations \
+        '[{"StackName": "vdi-dev-appstream-ondemand-fleet-stack-al2-with-docker", "UserName": "foo.bar@example.com", "AuthenticationType": "USERPOOL", "SendEmailNotification": true}]'
     $ aws appstream delete-user \
         --user-name foo.bar@example.com \
         --authentication-type USERPOOL
