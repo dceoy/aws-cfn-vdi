@@ -70,3 +70,8 @@ Outputs:
     Value: !Ref AppStreamImageBuilder
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamImageBuilder
+#   AppStreamStreamingInterfaceEndpointId:
+#     Description: AppStream streaming interface endpoint Id
+#     Value: !Ref AppStreamStreamingInterfaceEndpoint
+#     Export:
+#       Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamStreamingInterfaceEndpoint
