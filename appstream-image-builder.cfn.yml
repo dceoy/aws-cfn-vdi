@@ -64,7 +64,7 @@ Resources:
 #       ServiceName: !Sub com.amazonaws.${AWS::Region}.appstream.streaming
 #       VpcEndpointType: Interface
 #       VpcId:
-#         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
+#         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-Vpc
 Outputs:
   AppStreamImageBuilder:
     Value: !Ref AppStreamImageBuilder

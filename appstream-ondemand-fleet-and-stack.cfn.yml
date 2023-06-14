@@ -134,7 +134,7 @@ Resources:
 #       GroupName: !Sub ${ProjectName}-appstream-security-group
 #       GroupDescription: AppStream 2.0 security group
 #       VpcId:
-#         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
+#         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-Vpc
 #       Tags:
 #         - Key: Name
 #           Value: !Sub ${ProjectName}-appstream-security-group
@@ -149,7 +149,7 @@ Resources:
 #       ServiceName: !Sub com.amazonaws.${AWS::Region}.appstream.streaming
 #       VpcEndpointType: Interface
 #       VpcId:
-#         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-VPC
+#         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-Vpc
 Outputs:
   AppStreamFleet:
     Value: !Ref AppStreamFleet

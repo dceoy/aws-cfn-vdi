@@ -9,7 +9,7 @@ Parameters:
   IamStackName:
     Description: Set the S3 stack name.
     Type: String
-    Default: s3-and-iam-for-appstream
+    Default: iam-roles-for-appstream
   MinCapacity:
     Description: Set the minimum capacity.
     Type: Number
