@@ -31,6 +31,12 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:Describe*
+                  - s3:List*
+                  - s3-object-lambda:List*
+                Resource: '*'
+              - Effect: Allow
+                Action:
+                  - s3:Describe*
                   - s3:Get*
                   - s3:List*
                   - s3-object-lambda:Get*
@@ -59,9 +65,6 @@ Resources:
                   - elasticfilesystem:Describe*
                   - elasticfilesystem:List*
                 Resource: '*'
-                Condition:
-                  StringEquals:
-                    aws:ResourceTag/Name: !Sub ${ProjectName}-efs-filesystem
               - Effect: Allow
                 Action:
                   - elasticfilesystem:Describe*

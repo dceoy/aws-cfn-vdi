@@ -130,7 +130,7 @@ efs_fs_id="\$(echo "\${efs_ap_json}" | jq -r '.FileSystemId')"
 efs_ap_id="\$(echo "\${efs_ap_json}" | jq -r '.AccessPointId')"
 
 if [[ -n "\${efs_ap_id}" ]] && [[ -n "\${efs_fs_id}" ]]; then
-  [[ -d '/mnt/efs' ]] || mkdir -p /mnt/efs
+  [[ -d '/mnt/efs' ]] || sudo mkdir -p /mnt/efs
   sudo mount -t efs -o tls,accesspoint=\${efs_ap_id} \${efs_fs_id} /mnt/efs
 fi
 EOF
