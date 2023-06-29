@@ -38,6 +38,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-appstream-${AWS::AccountId}
+        - Key: ProjectName
+          Value: !Ref ProjectName
   AppStreamS3BucketPolicy:
     Type: AWS::S3::BucketPolicy
     Properties:

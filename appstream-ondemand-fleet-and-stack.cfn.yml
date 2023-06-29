@@ -87,6 +87,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}
+        - Key: ProjectName
+          Value: !Ref ProjectName
   AppStreamStack:
     Type: AWS::AppStream::Stack
     Properties:
@@ -123,6 +125,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-appstream-ondemand-fleet-stack-${ImageName}
+        - Key: ProjectName
+          Value: !Ref ProjectName
   AppStreamStackFleetAssociation:
     Type: AWS::AppStream::StackFleetAssociation
     Properties:
@@ -138,6 +142,8 @@ Resources:
 #       Tags:
 #         - Key: Name
 #           Value: !Sub ${ProjectName}-appstream-security-group
+#         - Key: ProjectName
+#           Value: !Ref ProjectName
 #   AppStreamStreamingInterfaceEndpoint:
 #     Type: AWS::EC2::VPCEndpoint
 #     Properties:

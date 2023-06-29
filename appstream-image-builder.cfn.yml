@@ -53,6 +53,8 @@ Resources:
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-appstream-image-builder-${ImageName}
+        - Key: ProjectName
+          Value: !Ref ProjectName
 #   AppStreamStreamingInterfaceEndpoint:
 #     Type: AWS::EC2::VPCEndpoint
 #     Properties:

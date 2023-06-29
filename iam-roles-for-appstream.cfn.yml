@@ -24,14 +24,6 @@ Resources:
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/AmazonAppStreamServiceAccess
       Policies:
-        - PolicyName: !Sub ${ProjectName}-assume-role-policy
-          PolicyDocument:
-            Version: 2012-10-17
-            Statement:
-              - Effect: Allow
-                Action: sts:AssumeRole
-                Resource:
-                  - !Sub arn:aws:iam::${AWS::AccountId}:role/${ProjectName}-AppStreamServiceRole
         - PolicyName: !Sub ${ProjectName}-s3-access-policy
           PolicyDocument:
             Version: 2012-10-17
@@ -44,7 +36,7 @@ Resources:
                   - s3-object-lambda:Get*
                   - s3-object-lambda:List*
                 Resource:
-                  - !Sub arn:aws:s3:::${ProjectName}-*
+                  - !Sub arn:aws:s3:::${ProjectName}-appstream-${AWS::AccountId}
               - Effect: Allow
                 Action:
                   - s3:Describe*
@@ -57,7 +49,7 @@ Resources:
                   - s3-object-lambda:*Object*
                   - s3-object-lambda:*MultipartUpload*
                 Resource:
-                  - !Sub arn:aws:s3:::${ProjectName}-*/*
+                  - !Sub arn:aws:s3:::${ProjectName}-appstream-${AWS::AccountId}/*
         - PolicyName: !Sub ${ProjectName}-efs-access-policy
           PolicyDocument:
             Version: 2012-10-17
@@ -66,10 +58,25 @@ Resources:
                 Action:
                   - elasticfilesystem:Describe*
                   - elasticfilesystem:List*
+                Resource: '*'
+                Condition:
+                  StringEquals:
+                    aws:ResourceTag/Name: !Sub ${ProjectName}-efs-filesystem
+              - Effect: Allow
+                Action:
+                  - elasticfilesystem:Describe*
+                  - elasticfilesystem:List*
                   - elasticfilesystem:ClientMount
                   - elasticfilesystem:ClientWrite
-                Resource:
-                  - !Sub arn:aws:elasticfilesystem:${AWS::Region}:${AWS::AccountId}:*/*
+                Resource: '*'
+                Condition:
+                  StringEquals:
+                    aws:ResourceTag/Name: !Sub ${ProjectName}-efs-accesspoint
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-AppStreamServiceRole
+        - Key: ProjectName
+          Value: !Ref ProjectName
   AppStreamAutoScalingRole:
     Type: AWS::IAM::Role
     Properties:
@@ -86,6 +93,11 @@ Resources:
               - sts:AssumeRole
       ManagedPolicyArns:
         - arn:aws:iam::aws:policy/service-role/ApplicationAutoScalingForAmazonAppStreamAccess
+      Tags:
+        - Key: Name
+          Value: !Sub ${ProjectName}-AppStreamAutoScalingRole
+        - Key: ProjectName
+          Value: !Ref ProjectName
 Outputs:
   AppStreamServiceRoleArn:
     Value: !GetAtt AppStreamServiceRole.Arn
