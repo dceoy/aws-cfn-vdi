@@ -123,7 +123,7 @@ cat << EOF | sudo tee /opt/appstream/SessionScripts/mount-efs.sh
 set -euo pipefail
 
 efs_ap_json="\$( \
-  aws --profile appstream_machine_role --region ${AWS_Region} efs describe-access-points \
+  aws --profile appstream_machine_role --region ${AWS_REGION} efs describe-access-points \
     | jq ".AccessPoints[] | select(.Name == \\"${PROJECT_NAME}-efs-accesspoint\\")" \
 )"
 efs_fs_id="\$(echo "\${efs_ap_json}" | jq -r '.FileSystemId')"
@@ -144,9 +144,9 @@ sudo chmod +x /opt/appstream/SessionScripts/mount-efs.sh
 #
 #set -euo pipefail
 #
-#[[ -d '/mnt/s3' ]] || mkdir -p /mnt/s3
+#[[ -d '/mnt/s3' ]] || sudo mkdir -p /mnt/s3
 #sudo /opt/mountpoint-s3/target/release/mount-s3 \
-#  --profile 'appstream_machine_role' --region '${AWS_REGION}' --allow-other \
+#  --profile appstream_machine_role --region ${AWS_REGION} --allow-other \
 #  ${s3_bucket_name} /mnt/s3
 #EOF
 #sudo chmod +x /opt/appstream/SessionScripts/mount-s3.sh

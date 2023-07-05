@@ -36,22 +36,16 @@ Resources:
                 Resource: '*'
               - Effect: Allow
                 Action:
-                  - s3:Describe*
                   - s3:Get*
-                  - s3:List*
                   - s3-object-lambda:Get*
-                  - s3-object-lambda:List*
                 Resource:
                   - !Sub arn:aws:s3:::${ProjectName}-appstream-${AWS::AccountId}
               - Effect: Allow
                 Action:
-                  - s3:Describe*
                   - s3:Get*
-                  - s3:List*
                   - s3:*Object*
                   - s3:*MultipartUpload*
                   - s3-object-lambda:Get*
-                  - s3-object-lambda:List*
                   - s3-object-lambda:*Object*
                   - s3-object-lambda:*MultipartUpload*
                 Resource:
@@ -64,17 +58,12 @@ Resources:
                 Action:
                   - elasticfilesystem:Describe*
                   - elasticfilesystem:List*
-                Resource: '*'
-              - Effect: Allow
-                Action:
-                  - elasticfilesystem:Describe*
-                  - elasticfilesystem:List*
                   - elasticfilesystem:ClientMount
                   - elasticfilesystem:ClientWrite
                 Resource: '*'
                 Condition:
                   StringEquals:
-                    aws:ResourceTag/Name: !Sub ${ProjectName}-efs-accesspoint
+                    aws:ResourceTag/ProjectName: !Ref ProjectName
       Tags:
         - Key: Name
           Value: !Sub ${ProjectName}-AppStreamServiceRole
