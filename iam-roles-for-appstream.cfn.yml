@@ -37,18 +37,13 @@ Resources:
               - Effect: Allow
                 Action:
                   - s3:Get*
-                  - s3-object-lambda:Get*
-                Resource:
-                  - !Sub arn:aws:s3:::${ProjectName}-appstream-${AWS::AccountId}
-              - Effect: Allow
-                Action:
-                  - s3:Get*
                   - s3:*Object*
                   - s3:*MultipartUpload*
                   - s3-object-lambda:Get*
                   - s3-object-lambda:*Object*
                   - s3-object-lambda:*MultipartUpload*
                 Resource:
+                  - !Sub arn:aws:s3:::${ProjectName}-appstream-${AWS::AccountId}
                   - !Sub arn:aws:s3:::${ProjectName}-appstream-${AWS::AccountId}/*
         - PolicyName: !Sub ${ProjectName}-efs-access-policy
           PolicyDocument:
@@ -58,6 +53,9 @@ Resources:
                 Action:
                   - elasticfilesystem:Describe*
                   - elasticfilesystem:List*
+                Resource: '*'
+              - Effect: Allow
+                Action:
                   - elasticfilesystem:ClientMount
                   - elasticfilesystem:ClientWrite
                 Resource: '*'

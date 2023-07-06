@@ -33,9 +33,19 @@ Resources:
   AppStreamImageBuilder:
     Type: AWS::AppStream::ImageBuilder
     Properties:
-      Name: !Sub ${ProjectName}-appstream-image-builder-${ImageName}
-      DisplayName: !Sub ${ProjectName}-appstream-image-builder-${ImageName}
-      Description: !Sub AppStream 2.0 Image Builder (${ImageName})
+      Name:
+        Fn::Join:
+          - '-'
+          - Fn::Split:
+              - '.'
+              - !Sub ${ProjectName}-appstream-image-builder-${ImageName}-${InstanceType}
+      DisplayName:
+        Fn::Join:
+          - '-'
+          - Fn::Split:
+              - '.'
+              - !Sub ${ProjectName}-appstream-image-builder-${ImageName}-${InstanceType}
+      Description: !Sub AppStream 2.0 Image Builder (${ImageName} - ${InstanceType})
       # AppstreamAgentVersion: LATEST
       EnableDefaultInternetAccess: !Ref EnableDefaultInternetAccess
       ImageName: !Ref ImageName
@@ -52,7 +62,12 @@ Resources:
       #     VpceId: !Ref AppStreamStreamingInterfaceEndpoint
       Tags:
         - Key: Name
-          Value: !Sub ${ProjectName}-appstream-image-builder-${ImageName}
+          Value:
+            Fn::Join:
+              - '-'
+              - Fn::Split:
+                  - '.'
+                  - !Sub ${ProjectName}-appstream-image-builder-${ImageName}-${InstanceType}
         - Key: ProjectName
           Value: !Ref ProjectName
 #   AppStreamStreamingInterfaceEndpoint:

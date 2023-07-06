@@ -70,7 +70,7 @@ Installation
         --params ProjectName=vdi-dev,ImageName=al2-with-docker,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-roles-for-appstream \
         appstream-ondemand-fleet-and-stack.cfn.yml vdi-dev-appstream-ondemand-fleet-and-stack
     $ aws appstream start-fleet \
-        --name vdi-dev-appstream-ondemand-fleet-al2-with-docker
+        --name vdi-dev-appstream-ondemand-fleet-al2-with-docker-stream-standard-small
     ```
 
 9.  Deploy stacks for AppStream 2.0 auto scaling. (optional)

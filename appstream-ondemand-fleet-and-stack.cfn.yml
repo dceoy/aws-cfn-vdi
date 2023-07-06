@@ -62,9 +62,19 @@ Resources:
   AppStreamFleet:
     Type: AWS::AppStream::Fleet
     Properties:
-      Name: !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}
-      DisplayName: !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}
-      Description: AppStream 2.0 on-demand fleet
+      Name:
+        Fn::Join:
+          - '-'
+          - Fn::Split:
+              - '.'
+              - !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}-${InstanceType}
+      DisplayName:
+        Fn::Join:
+          - '-'
+          - Fn::Split:
+              - '.'
+              - !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}-${InstanceType}
+      Description: AppStream 2.0 on-demand fleet (${ImageName} - ${InstanceType})
       FleetType: ON_DEMAND
       ImageName: !Ref ImageName
       InstanceType: !Ref InstanceType
@@ -86,15 +96,30 @@ Resources:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
       Tags:
         - Key: Name
-          Value: !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}
+          Value:
+            Fn::Join:
+              - '-'
+              - Fn::Split:
+                  - '.'
+                  - !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}-${InstanceType}
         - Key: ProjectName
           Value: !Ref ProjectName
   AppStreamStack:
     Type: AWS::AppStream::Stack
     Properties:
-      Name: !Sub ${ProjectName}-appstream-ondemand-fleet-stack-${ImageName}
-      DisplayName: !Sub ${ProjectName}-appstream-ondemand-fleet-stack-${ImageName}
-      Description: AppStream 2.0 on-demand fleet stack
+      Name:
+        Fn::Join:
+          - '-'
+          - Fn::Split:
+              - '.'
+              - !Sub ${ProjectName}-appstream-ondemand-fleet-stack-${ImageName}-${InstanceType}
+      DisplayName:
+        Fn::Join:
+          - '-'
+          - Fn::Split:
+              - '.'
+              - !Sub ${ProjectName}-appstream-ondemand-fleet-stack-${ImageName}-${InstanceType}
+      Description: AppStream 2.0 on-demand fleet stack (${ImageName} - ${InstanceType})
       StreamingExperienceSettings:
         PreferredProtocol: !Ref PreferredProtocol
       StorageConnectors:
@@ -124,7 +149,12 @@ Resources:
       #     VpceId: !Ref AppStreamStreamingInterfaceEndpoint
       Tags:
         - Key: Name
-          Value: !Sub ${ProjectName}-appstream-ondemand-fleet-stack-${ImageName}
+          Value:
+            Fn::Join:
+              - '-'
+              - Fn::Split:
+                  - '.'
+                  - !Sub ${ProjectName}-appstream-ondemand-fleet-stack-${ImageName}-${InstanceType}
         - Key: ProjectName
           Value: !Ref ProjectName
   AppStreamStackFleetAssociation:
