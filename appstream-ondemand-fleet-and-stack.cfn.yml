@@ -74,7 +74,7 @@ Resources:
           - Fn::Split:
               - '.'
               - !Sub ${ProjectName}-appstream-ondemand-fleet-${ImageName}-${InstanceType}
-      Description: AppStream 2.0 on-demand fleet (${ImageName} - ${InstanceType})
+      Description: !Sub AppStream 2.0 on-demand fleet (${ImageName} - ${InstanceType})
       FleetType: ON_DEMAND
       ImageName: !Ref ImageName
       InstanceType: !Ref InstanceType
@@ -119,7 +119,7 @@ Resources:
           - Fn::Split:
               - '.'
               - !Sub ${ProjectName}-appstream-ondemand-fleet-stack-${ImageName}-${InstanceType}
-      Description: AppStream 2.0 on-demand fleet stack (${ImageName} - ${InstanceType})
+      Description: !Sub AppStream 2.0 on-demand fleet stack (${ImageName} - ${InstanceType})
       StreamingExperienceSettings:
         PreferredProtocol: !Ref PreferredProtocol
       StorageConnectors:
