@@ -30,15 +30,16 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - s3:Describe*
-                  - s3:List*
-                  - s3-object-lambda:List*
+                  - s3:ListAllMyBuckets
                 Resource: '*'
               - Effect: Allow
                 Action:
+                  - s3:Describe*
+                  - s3:List*
                   - s3:Get*
                   - s3:*Object*
                   - s3:*MultipartUpload*
+                  - s3-object-lambda:List*
                   - s3-object-lambda:Get*
                   - s3-object-lambda:*Object*
                   - s3-object-lambda:*MultipartUpload*
