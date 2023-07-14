@@ -44,8 +44,8 @@ Resources:
                   - s3-object-lambda:*Object*
                   - s3-object-lambda:*MultipartUpload*
                 Resource:
-                  - !Sub arn:aws:s3:::${ProjectName}-appstream-${AWS::AccountId}
-                  - !Sub arn:aws:s3:::${ProjectName}-appstream-${AWS::AccountId}/*
+                  - !Sub arn:aws:s3:::${ProjectName}-as2-${AWS::AccountId}
+                  - !Sub arn:aws:s3:::${ProjectName}-as2-${AWS::AccountId}/*
         - PolicyName: !Sub ${ProjectName}-efs-access-policy
           PolicyDocument:
             Version: 2012-10-17

@@ -12,7 +12,33 @@ AWS_ACCOUNT_ID="$( \
     --query 'Account' --output text \
 )"
 # shellcheck disable=SC2154
-PROJECT_NAME="${AppStream_Resource_Name%%-appstream-*}"
+PROJECT_NAME="${AppStream_Resource_Name%-as2-*}"
+PROJECT_S3_BUCKET="${PROJECT_NAME}-as2-${AWS_ACCOUNT_ID}"
+
+
+# Set timezone
+case "${AWS_REGION}" in
+  'us-east-1' | 'us-east-2' )           TZ='America/New_York' ;;
+  'us-west-1' | 'us-west-2' )           TZ='America/Los_Angeles' ;;
+  'ca-central-1' )                      TZ='America/Toronto' ;;
+  'sa-east-1' )                         TZ='America/Sao_Paulo' ;;
+  'eu-west-1' )                         TZ='Europe/Dublin' ;;
+  'eu-west-2' )                         TZ='Europe/London' ;;
+  'eu-west-3' )                         TZ='Europe/Paris' ;;
+  'eu-north-1' )                        TZ='Europe/Stockholm' ;;
+  'eu-central-1' )                      TZ='Europe/Berlin' ;;
+  'eu-south-1' )                        TZ='Europe/Rome' ;;
+  'ap-south-1' )                        TZ='Asia/Kolkata' ;;
+  'ap-southeast-1' )                    TZ='Asia/Singapore' ;;
+  'ap-southeast-2' )                    TZ='Australia/Sydney' ;;
+  'ap-northeast-1' | 'ap-northeast-3' ) TZ='Asia/Tokyo' ;;
+  'ap-northeast-2' )                    TZ='Asia/Seoul' ;;
+  'ap-east-1' )                         TZ='Asia/Hong_Kong' ;;
+  'af-south-1' )                        TZ='Africa/Johannesburg' ;;
+  'me-south-1' )                        TZ='Asia/Dubai' ;;
+  * )                                   TZ='UTC' ;;
+esac
+sudo timedatectl set-timezone "${TZ}"
 
 
 # Install packages
@@ -48,7 +74,7 @@ fi
 
 
 # Install LibreOffice
-if [[ $(find '/usr/bin' -name 'libreoffice*' | wc -l) -eq 0 ]]; then
+if [[ $(find '/usr/bin' -name 'libreoffice*' | wc -l ) -eq 0 ]]; then
   curl -SL https://www.libreoffice.org/download/download-libreoffice/ \
     | grep -oe 'version=[0-9]\+\.[0-9]\+\.[0-9]\+' \
     | head -1 \
@@ -99,6 +125,8 @@ export GTK_THEME='Adwaita-dark'
 export AWS_PROFILE='appstream_machine_role'
 export AWS_REGION='${AWS_REGION}'
 export AWS_ACCOUNT_ID='${AWS_ACCOUNT_ID}'
+export PROJECT_NAME='${PROJECT_NAME}'
+export PROJECT_S3_BUCKET='${PROJECT_S3_BUCKET}'
 EOF
 
 
@@ -126,19 +154,21 @@ efs_ap_json="\$( \
   aws --profile appstream_machine_role --region ${AWS_REGION} efs describe-access-points \
     | jq ".AccessPoints[] | select(.Name == \\"${PROJECT_NAME}-efs-accesspoint\\")" \
 )"
-efs_fs_id="\$(echo "\${efs_ap_json}" | jq -r '.FileSystemId')"
-efs_ap_id="\$(echo "\${efs_ap_json}" | jq -r '.AccessPointId')"
+EFS_FS_ID="\$(echo "\${efs_ap_json}" | jq -r '.FileSystemId')"
+EFS_AP_ID="\$(echo "\${efs_ap_json}" | jq -r '.AccessPointId')"
 
-if [[ -n "\${efs_ap_id}" ]] && [[ -n "\${efs_fs_id}" ]]; then
+if [[ -n "\${EFS_AP_ID}" ]] && [[ -n "\${EFS_FS_ID}" ]]; then
   [[ -d '/mnt/efs' ]] || sudo mkdir -p /mnt/efs
-  sudo mount -t efs -o tls,accesspoint=\${efs_ap_id} \${efs_fs_id} /mnt/efs
+  sudo mount -t efs -o tls,accesspoint=\${EFS_AP_ID} \${EFS_FS_ID} /mnt/efs
 fi
+
+echo "export EFS_FS_ID='\${EFS_FS_ID}'" | sudo tee -a /etc/profile.d/user_env.sh
+echo "export EFS_AP_ID='\${EFS_AP_ID}'" | sudo tee -a /etc/profile.d/user_env.sh
 EOF
 sudo chmod +x /opt/appstream/SessionScripts/mount-efs.sh
 
 
 # Create a script for mounting S3
-#s3_bucket_name="${PROJECT_NAME}-appstream-${AWS_ACCOUNT_ID}"
 #cat << EOF | sudo tee /opt/appstream/SessionScripts/mount-s3.sh
 ##!/usr/bin/env bash
 #
@@ -147,7 +177,7 @@ sudo chmod +x /opt/appstream/SessionScripts/mount-efs.sh
 #[[ -d '/mnt/s3' ]] || sudo mkdir -p /mnt/s3
 #sudo /opt/mountpoint-s3/target/release/mount-s3 \
 #  --profile appstream_machine_role --region ${AWS_REGION} --allow-other \
-#  ${s3_bucket_name} /mnt/s3
+#  ${PROJECT_S3_BUCKET} /mnt/s3
 #EOF
 #sudo chmod +x /opt/appstream/SessionScripts/mount-s3.sh
 

@@ -12,7 +12,7 @@ Resources:
     # DeletionPolicy: Retain
     # UpdateReplacePolicy: Retain
     Properties:
-      BucketName: !Sub ${ProjectName}-appstream-${AWS::AccountId}
+      BucketName: !Sub ${ProjectName}-as2-${AWS::AccountId}
       BucketEncryption:
         ServerSideEncryptionConfiguration:
           - ServerSideEncryptionByDefault:
@@ -37,7 +37,7 @@ Resources:
               DaysAfterInitiation: 7
       Tags:
         - Key: Name
-          Value: !Sub ${ProjectName}-appstream-${AWS::AccountId}
+          Value: !Sub ${ProjectName}-as2-${AWS::AccountId}
         - Key: ProjectName
           Value: !Ref ProjectName
   AppStreamS3BucketPolicy:

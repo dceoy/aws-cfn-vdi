@@ -17,7 +17,7 @@ Parameters:
   ImageName:
     Description: Set the AppStream 2.0 image name.
     Type: String
-    Default: AppStream-AmazonLinux2-03-15-2023
+    Default: AppStream-AmazonLinux2-06-11-2023
   InstanceType:
     Description: Set the AppStream 2.0 instance type.
     Type: String
@@ -38,13 +38,13 @@ Resources:
           - '-'
           - Fn::Split:
               - '.'
-              - !Sub ${ProjectName}-appstream-image-builder-${ImageName}-${InstanceType}
+              - !Sub ${ProjectName}-as2-ib-${ImageName}-${InstanceType}
       DisplayName:
         Fn::Join:
           - '-'
           - Fn::Split:
               - '.'
-              - !Sub ${ProjectName}-appstream-image-builder-${ImageName}-${InstanceType}
+              - !Sub ${ProjectName}-as2-ib-${ImageName}-${InstanceType}
       Description: !Sub AppStream 2.0 Image Builder (${ImageName} - ${InstanceType})
       # AppstreamAgentVersion: LATEST
       EnableDefaultInternetAccess: !Ref EnableDefaultInternetAccess
@@ -67,7 +67,7 @@ Resources:
               - '-'
               - Fn::Split:
                   - '.'
-                  - !Sub ${ProjectName}-appstream-image-builder-${ImageName}-${InstanceType}
+                  - !Sub ${ProjectName}-as2-ib-${ImageName}-${InstanceType}
         - Key: ProjectName
           Value: !Ref ProjectName
 #   AppStreamStreamingInterfaceEndpoint:
