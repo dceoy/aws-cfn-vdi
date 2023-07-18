@@ -52,8 +52,7 @@ Resources:
             Statement:
               - Effect: Allow
                 Action:
-                  - elasticfilesystem:Describe*
-                  - elasticfilesystem:List*
+                  - elasticfilesystem:DescribeAccessPoints
                 Resource: '*'
               - Effect: Allow
                 Action:

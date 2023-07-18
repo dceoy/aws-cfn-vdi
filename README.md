@@ -69,8 +69,11 @@ Installation
     $ rain deploy \
         --params ProjectName=vdi-dev,ImageName=al2-with-docker,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-roles-for-appstream \
         appstream-ondemand-fleet-and-stack.cfn.yml vdi-dev-appstream-ondemand-fleet-and-stack
-    $ aws appstream start-fleet \
-        --name vdi-dev-appstream-ondemand-fleet-al2-with-docker-stream-standard-small
+    $ aws cloudformation describe-stacks \
+        --query 'Stacks[0].Outputs[?OutputKey==`AppStreamFleet`].OutputValue' \
+        --output text \
+        --stack-name vdi-dev-appstream-ondemand-fleet-and-stack \
+        | xargs -t -L1 aws appstream start-fleet --name
     ```
 
 9.  Deploy stacks for AppStream 2.0 auto scaling. (optional)

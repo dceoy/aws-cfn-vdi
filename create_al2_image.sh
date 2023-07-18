@@ -44,9 +44,10 @@ sudo timedatectl set-timezone "${TZ}"
 # Install packages
 sudo yum -y upgrade
 sudo yum -y install \
-  amazon-efs-utils bzip2 cargo clang-devel cmake3 colordiff curl docker \
-  findutils fuse-devel git gzip ImageMagick jq nkf p7zip pandoc pbzip2 pigz \
-  tar time tmux traceroute tree vim-enhanced wget which whois zsh \
+  amazon-efs-utils bzip2 ca-certificates cargo clang-devel cmake3 colordiff \
+  curl docker findutils fuse-devel git gzip ImageMagick jq nkf nmap p7zip \
+  pandoc pbzip2 pigz tar time tmux traceroute tree vim-enhanced wget which \
+  whois zsh \
   ibus-kkc ipa-gothic-fonts ipa-mincho-fonts vlgothic-p-fonts
 
 
@@ -159,7 +160,9 @@ EFS_AP_ID="\$(echo "\${efs_ap_json}" | jq -r '.AccessPointId')"
 
 if [[ -n "\${EFS_AP_ID}" ]] && [[ -n "\${EFS_FS_ID}" ]]; then
   [[ -d '/mnt/efs' ]] || sudo mkdir -p /mnt/efs
-  sudo mount -t efs -o tls,accesspoint=\${EFS_AP_ID} \${EFS_FS_ID} /mnt/efs
+  sudo mount \
+    -t efs -o tls,iam,awsprofile=appstream_machine_role,accesspoint=\${EFS_AP_ID} \
+    \${EFS_FS_ID} /mnt/efs
 fi
 
 echo "export EFS_FS_ID='\${EFS_FS_ID}'" | sudo tee -a /etc/profile.d/user_env.sh
