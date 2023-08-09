@@ -44,11 +44,17 @@ sudo timedatectl set-timezone "${TZ}"
 # Install packages
 sudo yum -y upgrade
 sudo yum -y install \
-  amazon-efs-utils bzip2 ca-certificates cargo clang-devel cmake3 colordiff \
-  curl docker findutils fuse-devel git gzip ImageMagick jq nkf nmap p7zip \
-  pandoc pbzip2 pigz tar time tmux traceroute tree vim-enhanced wget which \
-  whois zsh \
+  amazon-efs-utils bzip2 ca-certificates colordiff curl docker findutils git \
+  gzip ImageMagick jq nkf nmap p7zip pandoc pbzip2 pigz tar time tmux \
+  traceroute tree vim-enhanced wget which whois zsh \
   ibus-kkc ipa-gothic-fonts ipa-mincho-fonts vlgothic-p-fonts
+
+
+# Install Mountpoint for Amazon S3
+if [[ ! -f '/usr/bin/mount-s3' ]]; then
+  sudo yum -y install \
+    https://s3.amazonaws.com/mountpoint-s3-release/latest/x86_64/mount-s3.rpm
+fi
 
 
 # Install Google Chrome
@@ -108,17 +114,6 @@ sudo python3 -m pip install -U --no-cache-dir \
   csvkit docker-compose yamllint
 
 
-# Install mountpoint-s3
-#if [[ ! -f '/opt/mountpoint-s3/target/release/mount-s3' ]]; then
-#  git clone --depth 1 --recurse-submodules \
-#    https://github.com/awslabs/mountpoint-s3.git
-#  sudo mv mountpoint-s3 /opt/
-#  cd /opt/mountpoint-s3
-#  cargo build --release
-#  cd -
-#fi
-
-
 # Set environment variables
 # shellcheck disable=SC2154
 cat << EOF | sudo tee /etc/profile.d/user_env.sh
@@ -172,17 +167,17 @@ sudo chmod +x /opt/appstream/SessionScripts/mount-efs.sh
 
 
 # Create a script for mounting S3
-#cat << EOF | sudo tee /opt/appstream/SessionScripts/mount-s3.sh
-##!/usr/bin/env bash
-#
-#set -euo pipefail
-#
-#[[ -d '/mnt/s3' ]] || sudo mkdir -p /mnt/s3
-#sudo /opt/mountpoint-s3/target/release/mount-s3 \
-#  --profile appstream_machine_role --region ${AWS_REGION} --allow-other \
-#  ${PROJECT_S3_BUCKET} /mnt/s3
-#EOF
-#sudo chmod +x /opt/appstream/SessionScripts/mount-s3.sh
+cat << EOF | sudo tee /opt/appstream/SessionScripts/mount-s3.sh
+#!/usr/bin/env bash
+
+set -euo pipefail
+
+[[ -d '/mnt/s3' ]] || sudo mkdir -p /mnt/s3
+sudo /usr/bin/mount-s3 \
+  --profile appstream_machine_role --region ${AWS_REGION} --allow-other \
+  ${PROJECT_S3_BUCKET} /mnt/s3
+EOF
+sudo chmod +x /opt/appstream/SessionScripts/mount-s3.sh
 
 
 # Configure AppStream 2.0 session scripts
