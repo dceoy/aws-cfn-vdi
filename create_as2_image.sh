@@ -1,9 +1,12 @@
 #!/usr/bin/env bash
+#
+# Usage:
+#  ./create_as2_image.sh [<image_name>]
+#
+# Arguments:
+#   <image_name>  AppStream 2.0 image name
 
 set -euxo pipefail
-
-IMAGE_NAME='al2-with-docker'
-IMAGE_DESCRIPTION="$(cat /etc/system-release) with Docker"
 
 # shellcheck disable=SC2154
 AWS_REGION="${AWS_Region}"
@@ -14,6 +17,10 @@ AWS_ACCOUNT_ID="$( \
 # shellcheck disable=SC2154
 PROJECT_NAME="${AppStream_Resource_Name%-as2-*}"
 PROJECT_S3_BUCKET="${PROJECT_NAME}-as2-${AWS_ACCOUNT_ID}"
+# shellcheck disable=SC2154
+BASE_IMAGE_NAME="${AppStream_Image_Arn##*/}"
+IMAGE_NAME="${1:-"${PROJECT_NAME}-as2-$(date +%m-%d-%Y)"}"
+IMAGE_DESCRIPTION="$(cat /etc/system-release) with Docker"
 
 
 # Set timezone
@@ -121,6 +128,7 @@ export GTK_THEME='Adwaita-dark'
 export AWS_PROFILE='appstream_machine_role'
 export AWS_REGION='${AWS_REGION}'
 export AWS_ACCOUNT_ID='${AWS_ACCOUNT_ID}'
+export BASE_IMAGE_NAME='${BASE_IMAGE_NAME}'
 export PROJECT_NAME='${PROJECT_NAME}'
 export PROJECT_S3_BUCKET='${PROJECT_S3_BUCKET}'
 EOF

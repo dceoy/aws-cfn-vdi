@@ -67,14 +67,14 @@ Resources:
           - '-'
           - Fn::Split:
               - '.'
-              - !Sub ${ProjectName}-as2-odf-${ImageName}-${InstanceType}
+              - !Sub ${ProjectName}-as2-odf-${InstanceType}
       DisplayName:
         Fn::Join:
           - '-'
           - Fn::Split:
               - '.'
-              - !Sub ${ProjectName}-as2-odf-${ImageName}-${InstanceType}
-      Description: !Sub AppStream 2.0 on-demand fleet (${ImageName} - ${InstanceType})
+              - !Sub ${ProjectName}-as2-odf-${InstanceType}
+      Description: !Sub AppStream 2.0 on-demand fleet (${InstanceType})
       FleetType: ON_DEMAND
       ImageName: !Ref ImageName
       InstanceType: !Ref InstanceType
@@ -101,7 +101,7 @@ Resources:
               - '-'
               - Fn::Split:
                   - '.'
-                  - !Sub ${ProjectName}-as2-odf-${ImageName}-${InstanceType}
+                  - !Sub ${ProjectName}-as2-odf-${InstanceType}
         - Key: ProjectName
           Value: !Ref ProjectName
   AppStreamStack:
@@ -112,14 +112,14 @@ Resources:
           - '-'
           - Fn::Split:
               - '.'
-              - !Sub ${ProjectName}-as2-odfs-${ImageName}-${InstanceType}
+              - !Sub ${ProjectName}-as2-odfs-${InstanceType}
       DisplayName:
         Fn::Join:
           - '-'
           - Fn::Split:
               - '.'
-              - !Sub ${ProjectName}-as2-odfs-${ImageName}-${InstanceType}
-      Description: !Sub AppStream 2.0 on-demand fleet stack (${ImageName} - ${InstanceType})
+              - !Sub ${ProjectName}-as2-odfs-${InstanceType}
+      Description: !Sub AppStream 2.0 on-demand fleet stack (${InstanceType})
       StreamingExperienceSettings:
         PreferredProtocol: !Ref PreferredProtocol
       StorageConnectors:
@@ -154,7 +154,7 @@ Resources:
               - '-'
               - Fn::Split:
                   - '.'
-                  - !Sub ${ProjectName}-as2-odfs-${ImageName}-${InstanceType}
+                  - !Sub ${ProjectName}-as2-odfs-${InstanceType}
         - Key: ProjectName
           Value: !Ref ProjectName
   AppStreamStackFleetAssociation:
@@ -167,6 +167,15 @@ Resources:
 #     Properties:
 #       GroupName: !Sub ${ProjectName}-as2-security-group
 #       GroupDescription: AppStream 2.0 security group
+#       SecurityGroupIngress:
+#         - ipprotocol: tcp
+#           fromport: 22
+#           toport: 22
+#           cidrip: 0.0.0.0/0
+#         - ipprotocol: tcp
+#           fromport: 1400
+#           toport: 1499
+#           cidrip: 0.0.0.0/0
 #       VpcId:
 #         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-Vpc
 #       Tags:
@@ -181,7 +190,7 @@ Resources:
 #       SubnetIds:
 #         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
 #       SecurityGroupIds:
-#         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
+#         - !Ref AppStreamSecurityGroup
 #       ServiceName: !Sub com.amazonaws.${AWS::Region}.appstream.streaming
 #       VpcEndpointType: Interface
 #       VpcId:

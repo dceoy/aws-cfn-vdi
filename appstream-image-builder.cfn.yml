@@ -59,7 +59,7 @@ Resources:
           - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
       # AccessEndpoints:
       #   - EndpointType: STREAMING
-      #     VpceId: !Ref AppStreamStreamingInterfaceEndpoint
+      #     VpceId: String
       Tags:
         - Key: Name
           Value:
@@ -70,25 +70,12 @@ Resources:
                   - !Sub ${ProjectName}-as2-ib-${ImageName}-${InstanceType}
         - Key: ProjectName
           Value: !Ref ProjectName
-#   AppStreamStreamingInterfaceEndpoint:
-#     Type: AWS::EC2::VPCEndpoint
-#     Properties:
-#       PrivateDnsEnabled: true
-#       SubnetIds:
-#         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-PrivateSubnet0
-#       SecurityGroupIds:
-#         - Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-DefaultSecurityGroup
-#       ServiceName: !Sub com.amazonaws.${AWS::Region}.appstream.streaming
-#       VpcEndpointType: Interface
-#       VpcId:
-#         Fn::ImportValue: !Sub ${AWS::Region}-${VpcStackName}-Vpc
 Outputs:
   AppStreamImageBuilder:
     Value: !Ref AppStreamImageBuilder
     Export:
       Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamImageBuilder
-#   AppStreamStreamingInterfaceEndpointId:
-#     Description: AppStream streaming interface endpoint Id
-#     Value: !Ref AppStreamStreamingInterfaceEndpoint
-#     Export:
-#       Name: !Sub ${AWS::Region}-${AWS::StackName}-AppStreamStreamingInterfaceEndpoint
+  BaseImageName:
+    Value: !Ref ImageName
+    Export:
+      Name: !Sub ${AWS::Region}-${AWS::StackName}-BaseImageName

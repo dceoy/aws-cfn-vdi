@@ -30,15 +30,15 @@ Installation
         vdi-dev-vpc-public-subnets-with-nat-gateway-in-1az
     ```
 
-4.  Deploy S3 and IAM stacks for AppStream 2.0.
+4.  Deploy IAM and S3 stacks for AppStream 2.0.
 
     ```sh
     $ rain deploy \
         --params ProjectName=vdi-dev \
-        s3-bucket-for-appstream.cfn.yml vdi-dev-s3-bucket-for-appstream
+        iam-roles-for-appstream.cfn.yml vdi-dev-iam-roles-for-appstream
     $ rain deploy \
         --params ProjectName=vdi-dev \
-        iam-roles-for-appstream.cfn.yml vdi-dev-iam-roles-for-appstream
+        s3-bucket-for-appstream.cfn.yml vdi-dev-s3-bucket-for-appstream
     ```
 
 5.  Deploy EFS stacks. (optional)
@@ -52,22 +52,25 @@ Installation
 6.  Deploy stacks of an AppStream 2.0 image builder.
 
     ```sh
+    $ base_image=$(aws appstream describe-images --query 'Images[*].Name' | grep -oe 'AppStream-AmazonLinux[^"]\+' | tail -1)
     $ rain deploy \
-        --params ProjectName=vdi-dev,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-roles-for-appstream \
-        appstream-image-builder.cfn.yml vdi-dev-appstream-linux-image-builder
+        --params ProjectName=vdi-dev,ImageName="${base_image}",VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-roles-for-appstream \
+        appstream-image-builder.cfn.yml "vdi-dev-appstream-image-builder-${base_image}"
     ```
 
 7.  Execute the following script and create an AppStream 2.0 image in an AppStream 2.0 image builder instance.
 
     ```sh
-    $ curl -SL https://raw.githubusercontent.com/dceoy/aws-cfn-vdi/main/create_al2_image.sh | bash
+    $ curl -SLO https://raw.githubusercontent.com/dceoy/aws-cfn-vdi/main/create_as2_image.sh
+    $ bash create_as2_image.sh
     ```
 
 8.  Deploy stacks of an AppStream 2.0 on-demand fleet.
 
     ```sh
+    $ as2_image=$(aws appstream describe-images --query 'Images[*].Name' | grep -oe "vdi-dev-as2-[^\"]\+" | tail -1)
     $ rain deploy \
-        --params ProjectName=vdi-dev,ImageName=al2-with-docker,VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-roles-for-appstream \
+        --params ProjectName=vdi-dev,ImageName="${as2_image}",VpcStackName=vdi-dev-vpc-private-subnets-with-gateway-endpoints,IamStackName=vdi-dev-iam-roles-for-appstream \
         appstream-ondemand-fleet-and-stack.cfn.yml vdi-dev-appstream-ondemand-fleet-and-stack
     $ aws cloudformation describe-stacks \
         --query 'Stacks[0].Outputs[?OutputKey==`AppStreamFleet`].OutputValue' \
@@ -94,7 +97,7 @@ Installation
         --authentication-type USERPOOL
     $ aws appstream batch-associate-user-stack \
         --user-stack-associations \
-        '[{"StackName": "vdi-dev-appstream-ondemand-fleet-stack-al2-with-docker", "UserName": "foo.bar@example.com", "AuthenticationType": "USERPOOL", "SendEmailNotification": true}]'
+        '[{"StackName": "vdi-dev-as2-odfs-stream-standard-small", "UserName": "foo.bar@example.com", "AuthenticationType": "USERPOOL", "SendEmailNotification": true}]'
     ```
 
     Delete a user.
@@ -102,7 +105,7 @@ Installation
     ```sh
     $ aws appstream batch-disassociate-user-stack \
         --user-stack-associations \
-        '[{"StackName": "vdi-dev-appstream-ondemand-fleet-stack-al2-with-docker", "UserName": "foo.bar@example.com", "AuthenticationType": "USERPOOL", "SendEmailNotification": true}]'
+        '[{"StackName": "vdi-dev-as2-odfs-stream-standard-small", "UserName": "foo.bar@example.com", "AuthenticationType": "USERPOOL", "SendEmailNotification": true}]'
     $ aws appstream delete-user \
         --user-name foo.bar@example.com \
         --authentication-type USERPOOL
