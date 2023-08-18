@@ -50,6 +50,7 @@ sudo timedatectl set-timezone "${TZ}"
 
 # Install packages
 sudo yum -y upgrade
+sudo amazon-linux-extras install -y firefox libreoffice
 sudo yum -y install \
   amazon-efs-utils bzip2 ca-certificates colordiff curl docker findutils git \
   gzip ImageMagick jq nkf nmap p7zip pandoc pbzip2 pigz tar time tmux \
@@ -84,20 +85,6 @@ gpgkey=https://packages.microsoft.com/keys/microsoft.asc
 EOF
   yum check-update
   sudo yum -y install code
-fi
-
-
-# Install LibreOffice
-if [[ $(find '/usr/bin' -name 'libreoffice*' | wc -l ) -eq 0 ]]; then
-  curl -SL https://www.libreoffice.org/download/download-libreoffice/ \
-    | grep -oe 'version=[0-9]\+\.[0-9]\+\.[0-9]\+' \
-    | head -1 \
-    | cut -d = -f 2 \
-    | xargs -I{} curl -SL -o /tmp/libreoffice.tar.gz \
-      https://download.documentfoundation.org/libreoffice/stable/{}/rpm/x86_64/LibreOffice_{}_Linux_x86-64_rpm.tar.gz
-  tar xvf /tmp/libreoffice.tar.gz -C /tmp --remove-files
-  sudo yum -y install /tmp/LibreOffice_*_Linux_x86-64_rpm/RPMS/*.rpm
-  rm -rf /tmp/LibreOffice_*
 fi
 
 
@@ -219,6 +206,12 @@ sudo AppStreamImageAssistant add-application \
   --launch-parameters '"--working-directory=/home/as2-streaming-user"'
 
 sudo AppStreamImageAssistant add-application \
+  --name 'firefox' \
+  --display-name 'Firefox' \
+  --absolute-app-path '/usr/bin/firefox' \
+  --absolute-icon-path '/usr/share/icons/hicolor/256x256/apps/firefox.png'
+
+sudo AppStreamImageAssistant add-application \
   --name 'google-chrome' \
   --display-name 'Google Chrome' \
   --absolute-app-path '/usr/bin/google-chrome-stable' \
@@ -234,10 +227,8 @@ sudo AppStreamImageAssistant add-application \
 sudo AppStreamImageAssistant add-application \
   --name 'libreoffice' \
   --display-name 'LibreOffice' \
-  --absolute-app-path \
-  "$(find '/usr/bin' -name 'libreoffice*' | head -1)" \
-  --absolute-icon-path \
-  "$(find '/usr/share/icons/hicolor/256x256/apps' -name 'libreoffice*-base.png' | head -1)"
+  --absolute-app-path '/usr/bin/libreoffice' \
+  --absolute-icon-path '/usr/share/icons/hicolor/256x256/apps/libreoffice-base.png'
 
 sudo AppStreamImageAssistant create-image \
    --name "${IMAGE_NAME}" \
