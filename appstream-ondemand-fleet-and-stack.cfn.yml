@@ -44,7 +44,7 @@ Parameters:
     Description: Set the max user duration in seconds.
     Type: Number
     MinValue: 600
-    MaxValue: 360000
+    MaxValue: 432000
     Default: 57600
   DisconnectTimeoutInSeconds:
     Description: Set the disconnect timeout in seconds.
