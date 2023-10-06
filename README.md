@@ -114,6 +114,9 @@ Installation
 11. Creates a lifecycle configuration for S3 buckets created by AppStream 2.0.
 
     ```sh
+    $ aws s3api put-bucket-versioning \
+        --versioning-configuration Status=Enabled \
+        --bucket <bucket_name>
     $ aws s3api put-bucket-lifecycle-configuration \
         --lifecycle-configuration file://s3-lifecycle-configuration.json \
         --bucket <bucket_name>
